@@ -12,41 +12,38 @@
             background-color: #ffffff;
             color: #000000;
         }
-        header { /* Chloe's Closet */
+        header {
             background-color: #000000;
             color: #ffffff;
-            padding: 20px;
-            text-align: center;
+            text-align: center; /* Center text inside the header */
             font-size: 2.5em;
             font-weight: bold;
-            border-bottom: 2px solid #dddddd;
+            padding: 20px 0; /* Adjust padding for better spacing */
+            margin: 0;
             position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            height: 40px;
+            width: 100%
         }
-        nav { /* nav bar */
+
+        nav {
             background-color: #000000;
-            color: #ffffff;
+            display: flex; /* Use flexbox for alignment */
+            justify-content: center; /* Center the navigation buttons */
+            gap: 20px; /* Add spacing between buttons */
             padding: 10px 0;
-            text-align: center;
             position: fixed;
-            top: 80px;
             width: 100%;
-            z-index: 999;
-            height: 30px;
-            line-height: 30px;
+            top: 80px;
         }
-        nav a { /*buttons in nav bar*/
+
+        nav a {
             color: #ffffff;
-            margin: 0 15px;
             text-decoration: none;
             font-weight: bold;
             padding: 5px 10px;
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
+
         nav a:hover {
             background-color: #dddddd;
             color: #000000;
