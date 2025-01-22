@@ -6,29 +6,24 @@ function loadItems() {
     featuredItems.innerHTML = ''; // Clear previous items
 
     items.forEach((item, index) => {
-        const priceWithDollar = item.price.startsWith('$') ? item.price : `$${item.price}`;
         const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
+        const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
+        const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
 
         const itemCard = document.createElement('div');
         itemCard.classList.add('item-card');
         itemCard.innerHTML = `
             <img src="${firstImage}" alt="${item.name}" onclick="showModal(${index})">
             <h3>${item.name}</h3>
+            <p>${item.description}</p>
             <div class="item-footer">
-                <p>${priceWithDollar}</p>
-                <button onclick="addToCart(${index})">Add to Cart</button>
+                ${rentPrice ? `<p>${rentPrice}</p>` : ''}
+                ${buyPrice ? `<p>${buyPrice}</p>` : ''}
             </div>
-            ${
-                item.ownerId === userId
-                    ? `<button class="delete-btn" onclick="deleteItem(${index})">Delete</button>`
-                    : ''
-            }
         `;
         featuredItems.appendChild(itemCard);
     });
 }
-
-
 
 
 function showModal(index) {
@@ -88,14 +83,32 @@ function closeModal() {
 }
 
 function addItem() {
-    const name = document.getElementById('item-name').value;
-    const price = document.getElementById('item-price').value;
-    const description = document.getElementById('item-description').value || 'No description available.';
+    const name = document.getElementById('item-name').value.trim();
+    const description = document.getElementById('item-description').value.trim() || 'No description provided';
+    const rentChecked = document.getElementById('rent').checked;
+    const buyChecked = document.getElementById('buy').checked;
+    const rentPrice = document.getElementById('rent-price').value.trim();
+    const buyPrice = document.getElementById('buy-price').value.trim();
     const imageInput = document.getElementById('item-images');
     const userId = localStorage.getItem('userId'); // Use phone number as userId
 
-    if (!name || !price || imageInput.files.length === 0) {
-        alert('Please fill in all fields and upload at least one image!');
+    if (!name) {
+        alert('Please provide an item name.');
+        return;
+    }
+
+    if (!rentChecked && !buyChecked) {
+        alert('Please select at least one listing type.');
+        return;
+    }
+
+    if (rentChecked && !rentPrice) {
+        alert('Please provide a rent price.');
+        return;
+    }
+
+    if (buyChecked && !buyPrice) {
+        alert('Please provide a buy price.');
         return;
     }
 
@@ -104,21 +117,7 @@ function addItem() {
         return new Promise(resolve => {
             const reader = new FileReader();
             reader.onload = function (event) {
-                const img = new Image();
-                img.src = event.target.result;
-
-                img.onload = function () {
-                    const canvas = document.createElement('canvas');
-                    const targetSize = 300; // Fixed size
-                    canvas.width = targetSize;
-                    canvas.height = targetSize;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, targetSize, targetSize);
-
-                    const resizedBase64 = canvas.toDataURL('image/jpeg', 0.7); // Compress image
-                    resolve(resizedBase64);
-                };
+                resolve(event.target.result);
             };
             reader.readAsDataURL(file);
         });
@@ -128,8 +127,9 @@ function addItem() {
         const items = JSON.parse(localStorage.getItem('items')) || [];
         items.push({
             name,
-            price,
             description,
+            rentPrice: rentChecked ? rentPrice : null,
+            buyPrice: buyChecked ? buyPrice : null,
             images,
             ownerId: userId // Store phone number as the owner ID
         });
@@ -137,6 +137,19 @@ function addItem() {
         alert('Item added successfully!');
         window.location.href = 'home.html';
     });
+}
+
+
+function toggleRentPrice() {
+    const rentPriceInput = document.getElementById('rent-price');
+    const rentCheckbox = document.getElementById('rent');
+    rentPriceInput.style.display = rentCheckbox.checked ? 'inline-block' : 'none';
+}
+
+function toggleBuyPrice() {
+    const buyPriceInput = document.getElementById('buy-price');
+    const buyCheckbox = document.getElementById('buy');
+    buyPriceInput.style.display = buyCheckbox.checked ? 'inline-block' : 'none';
 }
 
 
