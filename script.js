@@ -1,7 +1,7 @@
 function loadItems() {
     const featuredItems = document.getElementById('featured-items');
     const items = JSON.parse(localStorage.getItem('items')) || [];
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    const userId = localStorage.getItem('userId'); // Current user's phone number
 
     featuredItems.innerHTML = ''; // Clear previous items
 
@@ -16,13 +16,19 @@ function loadItems() {
             <h3>${item.name}</h3>
             <div class="item-footer">
                 <p>${priceWithDollar}</p>
-                ${!isAdmin ? `<button onclick="addToCart(${index})">Add to Cart</button>` : ''}
+                <button onclick="addToCart(${index})">Add to Cart</button>
             </div>
-            ${isAdmin ? `<button class="delete-btn" onclick="deleteItem(${index})">Delete</button>` : ''}
+            ${
+                item.ownerId === userId
+                    ? `<button class="delete-btn" onclick="deleteItem(${index})">Delete</button>`
+                    : ''
+            }
         `;
         featuredItems.appendChild(itemCard);
     });
 }
+
+
 
 
 function showModal(index) {
@@ -81,27 +87,19 @@ function closeModal() {
     modal.style.display = 'none';
 }
 
-
-// Function to handle Add to Cart action
-function addToCart(index) {
-    const items = JSON.parse(localStorage.getItem('items')) || [];
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cart.push(items[index]);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${items[index].name} has been added to your cart!`);
-}
-
 function addItem() {
     const name = document.getElementById('item-name').value;
     const price = document.getElementById('item-price').value;
+    const description = document.getElementById('item-description').value || 'No description available.';
     const imageInput = document.getElementById('item-images');
+    const userId = localStorage.getItem('userId'); // Use phone number as userId
 
     if (!name || !price || imageInput.files.length === 0) {
         alert('Please fill in all fields and upload at least one image!');
         return;
     }
 
-    const files = Array.from(imageInput.files); // Handle all uploaded images
+    const files = Array.from(imageInput.files);
     const readerPromises = files.map(file => {
         return new Promise(resolve => {
             const reader = new FileReader();
@@ -111,41 +109,15 @@ function addItem() {
 
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
-                    const targetSize = 300; // Set fixed size for width and height
+                    const targetSize = 300; // Fixed size
                     canvas.width = targetSize;
                     canvas.height = targetSize;
 
                     const ctx = canvas.getContext('2d');
-
-                    // Calculate crop dimensions
-                    const aspectRatio = img.width / img.height;
-                    let cropWidth, cropHeight;
-
-                    if (aspectRatio > 1) {
-                        // Landscape orientation
-                        cropHeight = img.height;
-                        cropWidth = cropHeight * aspectRatio;
-                    } else {
-                        // Portrait or square orientation
-                        cropWidth = img.width;
-                        cropHeight = cropWidth / aspectRatio;
-                    }
-
-                    // Crop and center the image
-                    ctx.drawImage(
-                        img,
-                        (img.width - cropWidth) / 2, // x-offset for crop
-                        (img.height - cropHeight) / 2, // y-offset for crop
-                        cropWidth, // Crop width
-                        cropHeight, // Crop height
-                        0,
-                        0,
-                        targetSize,
-                        targetSize
-                    );
+                    ctx.drawImage(img, 0, 0, targetSize, targetSize);
 
                     const resizedBase64 = canvas.toDataURL('image/jpeg', 0.7); // Compress image
-                    resolve(resizedBase64); // Return the processed image
+                    resolve(resizedBase64);
                 };
             };
             reader.readAsDataURL(file);
@@ -153,33 +125,27 @@ function addItem() {
     });
 
     Promise.all(readerPromises).then(images => {
-        if (images.length === 0) {
-            alert('Failed to process images. Please try again.');
-            return;
-        }
-
         const items = JSON.parse(localStorage.getItem('items')) || [];
         items.push({
             name,
             price,
-            description: document.getElementById('item-description').value || 'No description available.',
-            images // Store all uploaded images
+            description,
+            images,
+            ownerId: userId // Store phone number as the owner ID
         });
         localStorage.setItem('items', JSON.stringify(items));
-
         alert('Item added successfully!');
-        window.location.href = 'index.html';
+        window.location.href = 'home.html';
     });
 }
 
+
+
 function deleteItem(index) {
     const items = JSON.parse(localStorage.getItem('items')) || [];
-    if (index >= 0 && index < items.length) {
-        items.splice(index, 1); // Remove item at the specified index
-        localStorage.setItem('items', JSON.stringify(items));
-        loadItems(); // Refresh the list
-    } else {
-        alert('Failed to delete item. Invalid index.');
-    }
+    items.splice(index, 1); // Remove item at the specified index
+    localStorage.setItem('items', JSON.stringify(items));
+    loadItems(); // Refresh the items list
 }
+
 
