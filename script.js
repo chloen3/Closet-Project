@@ -1,5 +1,5 @@
 const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // Replace with your bin URL
-const apiKey = '67918c8b1ea5ae6cf0290142'; // Find this in your JSONBin account settings
+const apiKey = '$2a$10$Cwmf/bMI8Y.R5eTUpY8wpOXWJjjzNdjnAc7dar1BFwQRKAs0yrws2'; // Find this in your JSONBin account settings
 
 // Fetch items from JSONBin
 function loadItems() {
@@ -9,10 +9,14 @@ function loadItems() {
             'X-Master-Key': apiKey // Required to access your JSONBin
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response:', response);
+        return response.json();
+    })
     .then(data => {
+        console.log('Data from JSONBin:', data);
         const featuredItems = document.getElementById('featured-items');
-        const items = data.record.items; // Access the "items" array
+        const items = data.record.items || []; // Ensure `items` exists
 
         featuredItems.innerHTML = ''; // Clear previous items
 
@@ -86,13 +90,11 @@ function showModal(index) {
     modal.style.display = 'block';
 }
 
-
-
-
 function closeModal() {
     const modal = document.getElementById('item-modal');
     modal.style.display = 'none';
 }
+
 
 function addItem() {
     const name = document.getElementById('item-name').value.trim();
@@ -102,7 +104,7 @@ function addItem() {
     const rentPrice = document.getElementById('rent-price').value.trim();
     const buyPrice = document.getElementById('buy-price').value.trim();
     const imageInput = document.getElementById('item-images');
-    const userId = localStorage.getItem('userId'); // For owner tracking
+    const userId = localStorage.getItem('userId') || 'guest'; // Use fallback if userId is missing
 
     if (!name) {
         alert('Please provide an item name.');
@@ -129,7 +131,8 @@ function addItem() {
         })
         .then(response => response.json())
         .then(data => {
-            const items = data.record.items;
+            console.log('Existing items:', data.record.items);
+            const items = data.record.items || [];
 
             // Add new item
             items.push({
@@ -141,6 +144,8 @@ function addItem() {
                 ownerId: userId
             });
 
+            console.log('Updated items:', items);
+
             // Update JSONBin
             fetch(apiUrl, {
                 method: 'PUT',
@@ -150,7 +155,8 @@ function addItem() {
                 },
                 body: JSON.stringify({ items })
             })
-            .then(() => {
+            .then(response => {
+                console.log('PUT response:', response);
                 alert('Item added successfully!');
                 window.location.href = 'home.html';
             })
@@ -158,6 +164,7 @@ function addItem() {
         });
     });
 }
+
 
 
 
