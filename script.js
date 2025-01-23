@@ -1,5 +1,5 @@
-const apiUrl = 'https://api.jsonbin.io/v3/b/67918caeacd3cb34a8d15f8d'; // Replace with your bin URL
-const apiKey = '$2a$10$Cwmf/bMI8Y.R5eTUpY8wpOXWJjjzNdjnAc7dar1BFwQRKAs0yrws2'; // Find this in your JSONBin account settings
+const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // Replace with your bin URL
+const apiKey = '67918c8b1ea5ae6cf0290142'; // Find this in your JSONBin account settings
 
 // Fetch items from JSONBin
 function loadItems() {
