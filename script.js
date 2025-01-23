@@ -1,43 +1,41 @@
-const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // Replace with your bin URL
-const apiKey = '$2a$10$Cwmf/bMI8Y.R5eTUpY8wpOXWJjjzNdjnAc7dar1BFwQRKAs0yrws2'; // Find this in your JSONBin account settings
+const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // bin URL
 
 // Fetch items from JSONBin
 function loadItems() {
-    fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-            'X-Master-Key': apiKey // Required to access your JSONBin
-        }
-    })
-    .then(response => {
-        console.log('Response:', response);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data from JSONBin:', data);
-        const featuredItems = document.getElementById('featured-items');
-        const items = data.record.items || []; // Ensure `items` exists
+    fetch(apiUrl)
+        .then(response => {
+            console.log('Response status:', response.status); // Debugging
+            return response.json();
+        })
+        .then(data => {
+            console.log('Data from JSONBin:', data); // Debugging
+            const items = data.record.items || [];
+            displayItems(items); // Function to handle displaying items
+        })
+        .catch(error => console.error('Error loading items:', error));
+}
 
-        featuredItems.innerHTML = ''; // Clear previous items
+// Function to display items on the page
+function displayItems(items) {
+    const featuredItems = document.getElementById('featured-items');
+    featuredItems.innerHTML = ''; // Clear previous items
 
-        items.forEach((item, index) => {
-            const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
-            const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
-            const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
+    items.forEach((item, index) => {
+        const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
+        const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
+        const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
 
-            const itemCard = document.createElement('div');
-            itemCard.classList.add('item-card');
-            itemCard.innerHTML = `
-                <img src="${firstImage}" alt="${item.name}">
-                <h3>${item.name}</h3>
-                <p>${item.description}</p>
-                ${rentPrice ? `<p>${rentPrice}</p>` : ''}
-                ${buyPrice ? `<p>${buyPrice}</p>` : ''}
-            `;
-            featuredItems.appendChild(itemCard);
-        });
-    })
-    .catch(error => console.error('Error loading items:', error));
+        const itemCard = document.createElement('div');
+        itemCard.classList.add('item-card');
+        itemCard.innerHTML = `
+            <img src="${firstImage}" alt="${item.name}">
+            <h3>${item.name}</h3>
+            <p>${item.description}</p>
+            ${rentPrice ? `<p>${rentPrice}</p>` : ''}
+            ${buyPrice ? `<p>${buyPrice}</p>` : ''}
+        `;
+        featuredItems.appendChild(itemCard);
+    });
 }
 
 
