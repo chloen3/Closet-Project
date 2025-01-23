@@ -1,29 +1,41 @@
+const apiUrl = 'https://api.jsonbin.io/v3/b/67918caeacd3cb34a8d15f8d'; // Replace with your bin URL
+const apiKey = '$2a$10$Cwmf/bMI8Y.R5eTUpY8wpOXWJjjzNdjnAc7dar1BFwQRKAs0yrws2'; // Find this in your JSONBin account settings
+
+// Fetch items from JSONBin
 function loadItems() {
-    const featuredItems = document.getElementById('featured-items');
-    const items = JSON.parse(localStorage.getItem('items')) || [];
-    const userId = localStorage.getItem('userId'); // Current user's phone number
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'X-Master-Key': apiKey // Required to access your JSONBin
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const featuredItems = document.getElementById('featured-items');
+        const items = data.record.items; // Access the "items" array
 
-    featuredItems.innerHTML = ''; // Clear previous items
+        featuredItems.innerHTML = ''; // Clear previous items
 
-    items.forEach((item, index) => {
-        const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
-        const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
-        const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
+        items.forEach((item, index) => {
+            const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
+            const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
+            const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
 
-        const itemCard = document.createElement('div');
-        itemCard.classList.add('item-card');
-        itemCard.innerHTML = `
-            <img src="${firstImage}" alt="${item.name}" onclick="showModal(${index})">
-            <h3>${item.name}</h3>
-            <p>${item.description}</p>
-            <div class="item-footer">
+            const itemCard = document.createElement('div');
+            itemCard.classList.add('item-card');
+            itemCard.innerHTML = `
+                <img src="${firstImage}" alt="${item.name}">
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
                 ${rentPrice ? `<p>${rentPrice}</p>` : ''}
                 ${buyPrice ? `<p>${buyPrice}</p>` : ''}
-            </div>
-        `;
-        featuredItems.appendChild(itemCard);
-    });
+            `;
+            featuredItems.appendChild(itemCard);
+        });
+    })
+    .catch(error => console.error('Error loading items:', error));
 }
+
 
 
 function showModal(index) {
@@ -90,25 +102,10 @@ function addItem() {
     const rentPrice = document.getElementById('rent-price').value.trim();
     const buyPrice = document.getElementById('buy-price').value.trim();
     const imageInput = document.getElementById('item-images');
-    const userId = localStorage.getItem('userId'); // Use phone number as userId
+    const userId = localStorage.getItem('userId'); // For owner tracking
 
     if (!name) {
         alert('Please provide an item name.');
-        return;
-    }
-
-    if (!rentChecked && !buyChecked) {
-        alert('Please select at least one listing type.');
-        return;
-    }
-
-    if (rentChecked && !rentPrice) {
-        alert('Please provide a rent price.');
-        return;
-    }
-
-    if (buyChecked && !buyPrice) {
-        alert('Please provide a buy price.');
         return;
     }
 
@@ -124,20 +121,44 @@ function addItem() {
     });
 
     Promise.all(readerPromises).then(images => {
-        const items = JSON.parse(localStorage.getItem('items')) || [];
-        items.push({
-            name,
-            description,
-            rentPrice: rentChecked ? rentPrice : null,
-            buyPrice: buyChecked ? buyPrice : null,
-            images,
-            ownerId: userId // Store phone number as the owner ID
+        fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': apiKey
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const items = data.record.items;
+
+            // Add new item
+            items.push({
+                name,
+                description,
+                rentPrice: rentChecked ? rentPrice : null,
+                buyPrice: buyChecked ? buyPrice : null,
+                images,
+                ownerId: userId
+            });
+
+            // Update JSONBin
+            fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': apiKey
+                },
+                body: JSON.stringify({ items })
+            })
+            .then(() => {
+                alert('Item added successfully!');
+                window.location.href = 'home.html';
+            })
+            .catch(error => console.error('Error saving item:', error));
         });
-        localStorage.setItem('items', JSON.stringify(items));
-        alert('Item added successfully!');
-        window.location.href = 'home.html';
     });
 }
+
 
 
 function toggleRentPrice() {
