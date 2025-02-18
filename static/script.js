@@ -1,19 +1,28 @@
 const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // bin URL
 
-// Fetch items from JSONBin
 function loadItems() {
-    fetch(apiUrl)
-        .then(response => {
-            console.log('Response status:', response.status); // Debugging
-            return response.json();
-        })
+    fetch('/get_items')
+        .then(response => response.json())
         .then(data => {
-            console.log('Data from JSONBin:', data); // Debugging
-            const items = data.record.items || [];
-            displayItems(items); // Function to handle displaying items
+            const featuredItems = document.getElementById('featured-items');
+            featuredItems.innerHTML = '';
+
+            data.items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.classList.add('item-card');
+                itemCard.innerHTML = `
+                    <img src="${item.image_path}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p>${item.rent_price ? `Rent: $${item.rent_price}` : ''}</p>
+                    <p>${item.buy_price ? `Buy: $${item.buy_price}` : ''}</p>
+                `;
+                featuredItems.appendChild(itemCard);
+            });
         })
-        .catch(error => console.error('Error loading items:', error));
+        .catch(error => console.error('Error:', error));
 }
+
 
 // Function to display items on the page
 function displayItems(items) {
@@ -101,65 +110,31 @@ function addItem() {
     const buyChecked = document.getElementById('buy').checked;
     const rentPrice = document.getElementById('rent-price').value.trim();
     const buyPrice = document.getElementById('buy-price').value.trim();
-    const imageInput = document.getElementById('item-images');
-    const userId = localStorage.getItem('userId') || 'guest'; // Use fallback if userId is missing
+    const imageInput = document.getElementById('item-images').files[0];
+    const ownerId = localStorage.getItem('userId') || 'guest';
 
-    if (!name) {
-        alert('Please provide an item name.');
+    if (!name || !imageInput) {
+        alert('Please provide an item name and an image.');
         return;
     }
 
-    const files = Array.from(imageInput.files);
-    const readerPromises = files.map(file => {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                resolve(event.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('rent_price', rentChecked ? rentPrice : '');
+    formData.append('buy_price', buyChecked ? buyPrice : '');
+    formData.append('image', imageInput);
+    formData.append('owner_id', ownerId);
 
-    Promise.all(readerPromises).then(images => {
-        fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'X-Master-Key': apiKey
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Existing items:', data.record.items);
-            const items = data.record.items || [];
-
-            // Add new item
-            items.push({
-                name,
-                description,
-                rentPrice: rentChecked ? rentPrice : null,
-                buyPrice: buyChecked ? buyPrice : null,
-                images,
-                ownerId: userId
-            });
-
-            console.log('Updated items:', items);
-
-            // Update JSONBin
-            fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': apiKey
-                },
-                body: JSON.stringify({ items })
-            })
-            .then(response => {
-                console.log('PUT response:', response);
-                alert('Item added successfully!');
-                window.location.href = 'home.html';
-            })
-            .catch(error => console.error('Error saving item:', error));
-        });
+    fetch('/add_item', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.json())
+    .then(data => {
+        alert('Item added successfully!');
+        window.location.href = 'home.html';
+    }).catch(error => {
+        console.error('Error:', error);
     });
 }
 
@@ -180,11 +155,17 @@ function toggleBuyPrice() {
 
 
 
-function deleteItem(index) {
-    const items = JSON.parse(localStorage.getItem('items')) || [];
-    items.splice(index, 1); // Remove item at the specified index
-    localStorage.setItem('items', JSON.stringify(items));
-    loadItems(); // Refresh the items list
+function deleteItem(itemId) {
+    fetch(`/delete_item/${itemId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Item deleted successfully!');
+        loadItems(); // Reload the items list
+    })
+    .catch(error => console.error('Error deleting item:', error));
 }
+
 
 
