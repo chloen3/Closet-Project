@@ -15,10 +15,10 @@
         header {
             background-color: #000000;
             color: #ffffff;
-            text-align: center; /* Center text inside the header */
+            text-align: center;
             font-size: 2.5em;
             font-weight: bold;
-            padding: 20px 0; /* Adjust padding for better spacing */
+            padding: 20px 0;
             margin: 0;
             position: fixed;
             width: 100%;
@@ -26,9 +26,9 @@
 
         nav {
             background-color: #000000;
-            display: flex; /* Use flexbox for alignment */
-            justify-content: center; /* Center the navigation buttons */
-            gap: 20px; /* Add spacing between buttons */
+            display: flex;
+            justify-content: center;
+            gap: 20px;
             padding: 10px 0;
             position: fixed;
             width: 100%;
@@ -54,12 +54,12 @@
 
         .featured-items {
             display: grid;
-            grid-template-columns: repeat(4, minmax(200px, 1fr)); /* Four items per row */
-            gap: 20px; /* Spacing between items */
-            justify-content: center; /* Center the grid */
-            max-width: 1200px; /* Limit the grid's maximum width */
-            margin: 0 auto; /* Center the grid within the page */
-            padding: 0 10px; /* Add padding to avoid items being too close to the edges */
+            grid-template-columns: repeat(4, minmax(200px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
         }
         .item-card {
             width: 250px;
@@ -69,15 +69,16 @@
             background-color: #ffffff;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
         .item-card img {
-            width: 100%; /* Ensure the image fits within the container width */
-            height: auto; /* Maintain aspect ratio */
-            max-width: 250px; /* Set a maximum width for the images */
-            max-height: 300px; /* Set a maximum height for the images */
-            object-fit: cover; /* Ensure the image fills the space without distortion */
-            border-radius: 10px; /* Keep rounded corners */
-            margin-bottom: 10px; /* Add spacing */
+            width: 100%;
+            height: auto;
+            max-width: 250px;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
         }
         .item-card h3 {
             color: #000000;
@@ -93,130 +94,77 @@
             transform: scale(1.05);
             box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
         }
-        .item-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .item-footer p {
-            margin: 0;
-            font-size: 1em;
-            color: #555555;
-        }
-        .item-footer button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            background-color: #000000;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        .item-footer button:hover {
-            background-color: #333333;
-        }
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8); /* Faded background */
+            background-color: rgba(0, 0, 0, 0.7); /* Dark background */
+            justify-content: center;
+            align-items: center;
         }
+
         .modal-content {
-            background-color: #ffffff;
-            margin: 15% auto;
+            background-color: white;
             padding: 20px;
             border-radius: 10px;
-            width: 60%;
-            max-width: 400px;
+            width: 90%; /* ✅ Prevents full screen size */
+            max-width: 500px; /* ✅ Ensures it doesn't get too big */
             text-align: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
-        .modal-content h2 {
-            font-size: 1.2em;
+
+
+        .modal-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
-        .modal-content p {
-            font-size: 0.9em;
-        }
-        .item-card img, .gallery-image {
-            width: 300px; /* Set the fixed width for consistency */
-            height: 300px; /* Set the fixed height */
-            object-fit: cover; /* Crop the image to fit the dimensions */
+
+        #modal-image {
+            max-width: 100%;
             border-radius: 10px;
-            display: block;
-            margin: 0 auto;
         }
-        .nav-arrow {
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #000;
+            cursor: pointer;
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #ffffff;
+        }
+
+
+        .buy-btn {
+            background-color: #FF69B4;
+            color: white;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .buy-btn:hover {
+            background-color: #FF1493;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
             font-size: 1.5em;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-        }
-        .left-arrow {
-            left: 10px;
-        }
-        .right-arrow {
-            right: 10px;
-        }
-        .nav-arrow:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        .buy-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #000000;
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .buy-btn:hover {
-            background-color: #333333;
-            transform: scale(1.05);
-        }
-        .close-btn {
             position: absolute;
-            top: 245px; /* Adjust positioning to  */
-            right: 650px; /* AFake changes*/
-            font-size: 3em;
-            cursor: pointer;
-            color: #ffffff;
-            background-color: #000000;
-            border: 10px;
-            outline: none;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%; /* circular close button */
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            top: 10px;
+            right: 15px;
         }
-        .close-btn:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-            transform: scale(1.1); /* Slight enlargement on hover */
-        }
-        
 
     </style>
 </head>
@@ -227,30 +175,36 @@
         <a href="/add">Add Items</a>
         <a href="/account">Account</a>
     </nav>
-    <script>
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
-        if (isAdmin) {
-            document.getElementById('addLink').style.display = 'inline-block';
-        }
-    </script>
+
     <main>
-        </h2>            </h2>
         <div class="featured-items" id="featured-items">
             <!-- Items will load here dynamically -->
         </div>
-    </main>
-    <div id="item-modal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-            <div id="modal-details">
-                <!-- Item details and photos will be dynamically added here -->
+        <!-- Modal for Enlarged Image -->
+        <!-- Modal for Enlarged Image -->
+        <div id="item-modal" class="modal" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation();">
+                <div class="modal-image-container">
+                    <img id="modal-image" src="" alt="Item Image">
+                </div>
+                <div class="modal-text">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-description"></p>
+                    <p id="modal-price"></p>
+                    <button class="buy-btn" onclick="buyItem()">Buy Now</button>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <script src="script.js"></script>
+
+
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
-        loadItems();
-    </script> 
+        document.addEventListener("DOMContentLoaded", function() {
+            loadItems(); // ✅ This ensures items are loaded properly
+        });
+    </script>
+    
 </body>
 </html>

@@ -1,4 +1,8 @@
-const apiUrl = 'https://api.jsonbin.io/v3/b/67918f13ad19ca34f8f2de27'; // bin URL
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadItems();
+});
 
 function loadItems() {
     fetch('/get_items')
@@ -17,11 +21,17 @@ function loadItems() {
                     <p>${item.rent_price ? `Rent: $${item.rent_price}` : ''}</p>
                     <p>${item.buy_price ? `Buy: $${item.buy_price}` : ''}</p>
                 `;
+
+                // Make the whole item clickable
+                itemCard.addEventListener('click', () => showModal(item.id));
+
                 featuredItems.appendChild(itemCard);
             });
         })
         .catch(error => console.error('Error:', error));
 }
+
+
 
 
 // Function to display items on the page
@@ -48,59 +58,50 @@ function displayItems(items) {
 }
 
 
+let currentItem = null;
+let currentImageIndex = 0;
 
-function showModal(index) {
-    const items = JSON.parse(localStorage.getItem('items')) || [];
-    const item = items[index];
-    const modal = document.getElementById('item-modal');
-    const modalDetails = document.getElementById('modal-details');
+function showModal(itemId) {
+    fetch(`/get_items`)
+        .then(response => response.json())
+        .then(data => {
+            const item = data.items.find(i => i.id === itemId);
+            if (!item) {
+                alert('Item not found.');
+                return;
+            }
 
-    if (!item || !item.images || item.images.length === 0) {
-        alert('No images available for this item.');
-        return;
-    }
+            // Set modal content
+            document.getElementById('modal-image').src = item.image_path;
+            document.getElementById('modal-title').innerText = item.name;
+            document.getElementById('modal-description').innerText = item.description;
+            document.getElementById('modal-price').innerText = item.buy_price ? `Buy: $${item.buy_price}` : 'Not for sale';
 
-    let currentImageIndex = 0; // Track the current image index
-
-    function updateImage() {
-        modalDetails.innerHTML = `
-            <div class="image-gallery">
-                <img src="${item.images[currentImageIndex]}" alt="Photo ${currentImageIndex + 1}" class="gallery-image">
-            </div>
-            <button class="nav-arrow left-arrow" onclick="previousImage()">&#9664;</button>
-            <button class="nav-arrow right-arrow" onclick="nextImage()">&#9654;</button>
-            <h2>${item.name}</h2>
-            <p>${item.price.startsWith('$') ? item.price : `$${item.price}`}</p>
-            <p>${item.description}</p>
-            <button class="buy-btn" onclick="buyItem(${index})">Buy Now</button>
-        `;
-    }
-
-    // Functions for navigating images
-    window.previousImage = function () {
-        currentImageIndex = (currentImageIndex - 1 + item.images.length) % item.images.length; // Wrap around to the last image
-        updateImage();
-    };
-
-    window.nextImage = function () {
-        currentImageIndex = (currentImageIndex + 1) % item.images.length; // Wrap around to the first image
-        updateImage();
-    };
-
-    // Function for Buy Now button
-    window.buyItem = function () {
-        alert(`You have chosen to buy "${item.name}" for ${item.price}!`);
-    };
-
-    // Initialize modal with the first image
-    updateImage();
-    modal.style.display = 'block';
+            // Show modal
+            document.getElementById('item-modal').style.display = 'flex';
+        })
+        .catch(error => {
+            console.error('Error fetching item details:', error);
+            alert('Failed to load item details.');
+        });
 }
 
-function closeModal() {
+
+function closeModal(event) {
     const modal = document.getElementById('item-modal');
-    modal.style.display = 'none';
+
+    // Close modal only if the click is outside the modal-content
+    if (!event || event.target === modal) {
+        modal.style.display = 'none';
+    }
 }
+
+
+function buyItem() {
+    alert(`Proceeding to purchase: ${currentItem.name}`);
+}
+
+
 
 
 function addItem() {
@@ -130,16 +131,24 @@ function addItem() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to add item.');
+        }
+        return response.json();
+    })
     .then(data => {
         alert('Item added successfully!');
-        window.location.href = '/home';  // ✅ Redirects after success
+        setTimeout(() => {
+            window.location.href = '/home';
+        }, 500);
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to add item. Please try again.');
     });
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function() {

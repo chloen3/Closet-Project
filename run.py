@@ -45,12 +45,19 @@ def shop():
 def get_items():
     items = Item.query.all()
     items_list = [
-        {"id": item.id, "name": item.name, "description": item.description,
-         "rent_price": item.rent_price, "buy_price": item.buy_price,
-         "image_path": item.image_path, "owner_id": item.owner_id}
+        {
+            "id": int(item.id),
+            "name": item.name,
+            "description": item.description,
+            "rent_price": item.rent_price,
+            "buy_price": item.buy_price,
+            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",  # ✅ Ensures correct image path
+            "owner_id": item.owner_id
+        }
         for item in items
     ]
     return jsonify({"items": items_list})
+
 
 # API Route: Add Item
 @app.route('/add_item', methods=['POST'])
