@@ -108,8 +108,8 @@ function addItem() {
     const description = document.getElementById('item-description').value.trim() || 'No description provided';
     const rentChecked = document.getElementById('rent').checked;
     const buyChecked = document.getElementById('buy').checked;
-    const rentPrice = document.getElementById('rent-price').value.trim();
-    const buyPrice = document.getElementById('buy-price').value.trim();
+    const rentPrice = rentChecked ? document.getElementById('rent-price').value.trim() : "";
+    const buyPrice = buyChecked ? document.getElementById('buy-price').value.trim() : "";
     const imageInput = document.getElementById('item-images').files[0];
     const ownerId = localStorage.getItem('userId') || 'guest';
 
@@ -121,37 +121,42 @@ function addItem() {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('description', description);
-    formData.append('rent_price', rentChecked ? rentPrice : '');
-    formData.append('buy_price', buyChecked ? buyPrice : '');
+    formData.append('rent_price', rentPrice);
+    formData.append('buy_price', buyPrice);
     formData.append('image', imageInput);
     formData.append('owner_id', ownerId);
 
     fetch('/add_item', {
         method: 'POST',
         body: formData
-    }).then(response => response.json())
+    })
+    .then(response => response.json())
     .then(data => {
         alert('Item added successfully!');
-        window.location.href = 'home.html';
-    }).catch(error => {
+        window.location.href = '/home';  // ✅ Redirects after success
+    })
+    .catch(error => {
         console.error('Error:', error);
+        alert('Failed to add item. Please try again.');
     });
 }
 
 
-
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('rent').addEventListener('change', toggleRentPrice);
+    document.getElementById('buy').addEventListener('change', toggleBuyPrice);
+});
 
 function toggleRentPrice() {
     const rentPriceInput = document.getElementById('rent-price');
-    const rentCheckbox = document.getElementById('rent');
-    rentPriceInput.style.display = rentCheckbox.checked ? 'inline-block' : 'none';
+    rentPriceInput.style.display = document.getElementById('rent').checked ? 'inline-block' : 'none';
 }
 
 function toggleBuyPrice() {
     const buyPriceInput = document.getElementById('buy-price');
-    const buyCheckbox = document.getElementById('buy');
-    buyPriceInput.style.display = buyCheckbox.checked ? 'inline-block' : 'none';
+    buyPriceInput.style.display = document.getElementById('buy').checked ? 'inline-block' : 'none';
 }
+
 
 
 
