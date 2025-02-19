@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", function() {
     loadItems();
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    const userName = localStorage.getItem("userName") || "Guest";
+    document.getElementById("user-name").textContent = userName;
+});
+
 function loadItems() {
     fetch('/get_items')
         .then(response => response.json())
@@ -32,8 +37,6 @@ function loadItems() {
 }
 
 
-
-
 // Function to display items on the page
 function displayItems(items) {
     const featuredItems = document.getElementById('featured-items');
@@ -58,9 +61,6 @@ function displayItems(items) {
 }
 
 
-let currentItem = null;
-let currentImageIndex = 0;
-
 function showModal(itemId) {
     fetch(`/get_items`)
         .then(response => response.json())
@@ -75,7 +75,17 @@ function showModal(itemId) {
             document.getElementById('modal-image').src = item.image_path;
             document.getElementById('modal-title').innerText = item.name;
             document.getElementById('modal-description').innerText = item.description;
-            document.getElementById('modal-price').innerText = item.buy_price ? `Buy: $${item.buy_price}` : 'Not for sale';
+            let priceText = '';
+            if (item.rent_price && item.buy_price) {
+                priceText = `Rent: $${item.rent_price} | Buy: $${item.buy_price}`;
+            } else if (item.rent_price) {
+                priceText = `Rent: $${item.rent_price}`;
+            } else if (item.buy_price) {
+                priceText = `Buy: $${item.buy_price}`;
+            } else {
+                priceText = 'Not for sale';
+            }
+            document.getElementById('modal-price').innerText = priceText;
 
             // Show modal
             document.getElementById('item-modal').style.display = 'flex';
@@ -100,8 +110,6 @@ function closeModal(event) {
 function buyItem() {
     alert(`Proceeding to purchase: ${currentItem.name}`);
 }
-
-
 
 
 function addItem() {
@@ -149,8 +157,6 @@ function addItem() {
     });
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('rent').addEventListener('change', toggleRentPrice);
     document.getElementById('buy').addEventListener('change', toggleBuyPrice);
@@ -166,7 +172,47 @@ function toggleBuyPrice() {
     buyPriceInput.style.display = document.getElementById('buy').checked ? 'inline-block' : 'none';
 }
 
+function loadUserItems() {
+    const ownerId = localStorage.getItem("userId") || "guest";
 
+    fetch('/get_items')
+        .then(response => response.json())
+        .then(data => {
+            const userItemsContainer = document.getElementById("user-items");
+            userItemsContainer.innerHTML = "";
+
+            const userItems = data.items.filter(item => item.owner_id === ownerId);
+
+            if (userItems.length === 0) {
+                userItemsContainer.innerHTML = "<p>You have not posted any items yet.</p>";
+                return;
+            }
+
+            userItems.forEach(item => {
+                const itemCard = document.createElement("div");
+                itemCard.classList.add("item-card");
+                itemCard.innerHTML = `
+                    <div class="delete-container">
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">✖</button>
+                    </div>
+                    <img src="${item.image_path}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    ${item.rent_price ? `<p>Rent: $${item.rent_price}</p>` : ''}
+                    ${item.buy_price ? `<p>Buy: $${item.buy_price}</p>` : ''}
+                `;
+                userItemsContainer.appendChild(itemCard);
+            });
+        })
+        .catch(error => console.error("Error fetching user items:", error));
+}
+
+// Load user's items on account page
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.location.pathname === "/account") {
+        loadUserItems();
+    }
+});
 
 
 function deleteItem(itemId) {
@@ -176,6 +222,7 @@ function deleteItem(itemId) {
     .then(response => response.json())
     .then(data => {
         alert('Item deleted successfully!');
+        window.location.reload();
         loadItems(); // Reload the items list
     })
     .catch(error => console.error('Error deleting item:', error));

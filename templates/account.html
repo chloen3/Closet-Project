@@ -87,29 +87,35 @@
             margin: 10px 0;
         }
 
-        .item-card p {
-            color: #555555;
-            font-size: 1em;
-            margin: 5px 0;
+        .delete-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
 
         .delete-btn {
-            display: block;
-            background-color: #FF69B4;
-            color: #ffffff;
+            background-color: transparent;
             border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 1em;
+            color: #FF69B4;
+            font-size: 55px;
+            font-weight: bold;
             cursor: pointer;
-            text-align: center;
-            margin-top: 10px;
         }
 
         .delete-btn:hover {
-            background-color: #FF1493; /* Deep Pink for hover effect */
-            transform: scale(1.1);
+            color: #FF1493;
+            transform: scale(1.2);
         }
+
+        .item-card {
+            position: relative; /* Ensures delete button stays in the top corner */
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
     </style>
 </head>
 <body>
@@ -120,7 +126,7 @@
         <a href="/account">Account</a>
     </nav>
     <main>
-        <h2 id="welcome-message">Hello, Guest!</h2>
+        <h2 id="welcome-message">Hello, <span id="user-name"></span>!</h2>
         <h2>Your Posted Items:</h2>
         <div class="user-items" id="user-items">
             <!-- User's items will load here dynamically -->
