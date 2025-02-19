@@ -55,24 +55,30 @@ def get_items():
 # API Route: Add Item
 @app.route('/add_item', methods=['POST'])
 def add_item():
-    name = request.form['name']
+    if 'image' not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    name = request.form.get('name')
     description = request.form.get('description', 'No description provided')
     rent_price = request.form.get('rent_price', None)
     buy_price = request.form.get('buy_price', None)
-    owner_id = request.form['owner_id']
+    owner_id = request.form.get('owner_id', 'guest')
     image = request.files['image']
 
+    # Save the image
     upload_folder = "static/uploads"
     os.makedirs(upload_folder, exist_ok=True)
     image_path = os.path.join(upload_folder, image.filename)
     image.save(image_path)
 
+    # Save to database
     new_item = Item(name=name, description=description, rent_price=rent_price,
                     buy_price=buy_price, image_path=image_path, owner_id=owner_id)
     db.session.add(new_item)
     db.session.commit()
 
     return jsonify({"message": "Item added successfully!"})
+
 
 # Start Flask Server
 if __name__ == '__main__':
