@@ -86,6 +86,15 @@ def add_item():
 
     return jsonify({"message": "Item added successfully!"})
 
+@app.route('/delete_item/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    item = Item.query.get(item_id)
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"message": "Item deleted successfully!"})
+    return jsonify({"error": "Item not found"}), 404
+
 
 # Start Flask Server
 if __name__ == '__main__':
