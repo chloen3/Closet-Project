@@ -120,7 +120,7 @@ function addItem() {
     const rentPrice = rentChecked ? document.getElementById('rent-price').value.trim() : "";
     const buyPrice = buyChecked ? document.getElementById('buy-price').value.trim() : "";
     const imageInput = document.getElementById('item-images').files[0];
-    const ownerId = localStorage.getItem('userId') || 'guest';
+    const ownerEmail = localStorage.getItem('userEmail') || 'guest@gmail.com';
 
     if (!name || !imageInput) {
         alert('Please provide an item name and an image.');
@@ -133,7 +133,7 @@ function addItem() {
     formData.append('rent_price', rentPrice);
     formData.append('buy_price', buyPrice);
     formData.append('image', imageInput);
-    formData.append('owner_id', ownerId);
+    formData.append('owner_email', ownerEmail);
 
     fetch('/add_item', {
         method: 'POST',
@@ -173,7 +173,7 @@ function toggleBuyPrice() {
 }
 
 function loadUserItems() {
-    const ownerId = localStorage.getItem("userId") || "guest";
+    const ownerEmail = localStorage.getItem("userId") || "guest@gmail.com";
 
     fetch('/get_items')
         .then(response => response.json())

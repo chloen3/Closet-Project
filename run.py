@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -8,6 +9,7 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///closet.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Define Item Model
 class Item(db.Model):
@@ -17,7 +19,8 @@ class Item(db.Model):
     rent_price = db.Column(db.String(20), nullable=True)
     buy_price = db.Column(db.String(20), nullable=True)
     image_path = db.Column(db.String(200), nullable=False)
-    owner_id = db.Column(db.String(100), nullable=False)  # Track item owner
+    owner_email = db.Column(db.String(100), nullable=False)  # Track item owner by email
+
 
 # Create database tables
 with app.app_context():
@@ -52,7 +55,7 @@ def get_items():
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
             "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",  # ✅ Ensures correct image path
-            "owner_id": item.owner_id
+            "owner_email": item.owner_email
         }
         for item in items
     ]
@@ -69,7 +72,7 @@ def add_item():
     description = request.form.get('description', 'No description provided')
     rent_price = request.form.get('rent_price', None)
     buy_price = request.form.get('buy_price', None)
-    owner_id = request.form.get('owner_id', 'guest')
+    owner_email = request.form.get('owner_email', 'guest@gmail.com')
     image = request.files['image']
 
     # Save the image
@@ -80,7 +83,7 @@ def add_item():
 
     # Save to database
     new_item = Item(name=name, description=description, rent_price=rent_price,
-                    buy_price=buy_price, image_path=image_path, owner_id=owner_id)
+                    buy_price=buy_price, image_path=image_path, owner_email=owner_email)
     db.session.add(new_item)
     db.session.commit()
 

@@ -49,38 +49,34 @@
     <div class="login-form">
         <h2>Welcome to Closet 1821</h2>
         <input type="text" id="name" placeholder="Enter your name">
-        <input type="tel" id="phone" placeholder="Enter your phone number">
+        <input type="email" id="email" placeholder="Enter your Gmail">
         <button onclick="login()">Submit</button>
     </div>
 
     <script>
         function login() {
             const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-
-            if (!name || !phone) {
+            const email = document.getElementById('email').value.trim().toLowerCase(); // Store emails in lowercase
+    
+            if (!name || !email) {
                 alert('Please fill in both fields!');
                 return;
             }
-
-            // Check if the phone number exists in the system
+    
             let users = JSON.parse(localStorage.getItem('users')) || {};
-            if (users[phone]) {
-                alert(`Welcome back, ${users[phone].name}!`);
+            if (users[email]) {
+                alert(`Welcome back, ${users[email].name}!`);
             } else {
-                // Save new user to localStorage
-                users[phone] = { name, phone };
+                users[email] = { name, email };
                 localStorage.setItem('users', JSON.stringify(users));
                 alert('Account created successfully!');
             }
-
-            // Save the current user to localStorage
-            localStorage.setItem('userId', phone);
+    
+            localStorage.setItem('owner_email', email);
             localStorage.setItem('userName', name);
-
-            // Redirect to home screen
             window.location.href = '/home';
         }
     </script>
+    
 </body>
 </html>
