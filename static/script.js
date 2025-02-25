@@ -173,22 +173,24 @@ function toggleBuyPrice() {
 }
 
 function loadUserItems() {
-    const ownerEmail = localStorage.getItem("userId") || "guest@gmail.com";
+    const ownerEmail = localStorage.getItem("owner_email");
+    if (!ownerEmail) {
+        alert("You are not logged in.");
+        return;
+    }
 
-    fetch('/get_items')
+    fetch(`/get_user_items?owner_email=${encodeURIComponent(ownerEmail)}`)
         .then(response => response.json())
         .then(data => {
             const userItemsContainer = document.getElementById("user-items");
             userItemsContainer.innerHTML = "";
 
-            const userItems = data.items.filter(item => item.owner_id === ownerId);
-
-            if (userItems.length === 0) {
+            if (data.items.length === 0) {
                 userItemsContainer.innerHTML = "<p>You have not posted any items yet.</p>";
                 return;
             }
 
-            userItems.forEach(item => {
+            data.items.forEach(item => {
                 const itemCard = document.createElement("div");
                 itemCard.classList.add("item-card");
                 itemCard.innerHTML = `
@@ -213,6 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loadUserItems();
     }
 });
+
 
 
 function deleteItem(itemId) {

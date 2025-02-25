@@ -44,23 +44,43 @@ def shop():
     return render_template('home.html')
 
 # API Route: Get Items
+@app.route('/get_user_items', methods=['GET'])
+def get_user_items():
+    owner_email = request.args.get('owner_email', None)
+    if not owner_email:
+        return jsonify({"error": "User email not provided"}), 400
+
+    user_items = Item.query.filter_by(owner_email=owner_email).all()
+    items_list = [
+        {
+            "id": item.id,
+            "name": item.name,
+            "description": item.description,
+            "rent_price": item.rent_price,
+            "buy_price": item.buy_price,
+            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
+            "owner_email": item.owner_email
+        }
+        for item in user_items
+    ]
+    return jsonify({"items": items_list})
+
 @app.route('/get_items', methods=['GET'])
 def get_items():
     items = Item.query.all()
     items_list = [
         {
-            "id": int(item.id),
+            "id": item.id,
             "name": item.name,
             "description": item.description,
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
-            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",  # ✅ Ensures correct image path
+            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
             "owner_email": item.owner_email
         }
         for item in items
     ]
     return jsonify({"items": items_list})
-
 
 # API Route: Add Item
 @app.route('/add_item', methods=['POST'])
