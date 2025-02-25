@@ -135,6 +135,15 @@ function notifySeller(item) {
     .then(data => {
         if (data.message) {
             alert("Seller has been notified via email!");
+
+            // ✅ Remove the item from the site
+            fetch(`/delete_item/${item.id}`, { method: "DELETE" })
+                .then(response => response.json())
+                .then(() => {
+                    // alert("Item removed from site.");
+                    window.location.reload(); // ✅ Refresh the page to update items
+                })
+                .catch(error => console.error("Error removing item:", error));
         } else {
             alert("Error: " + data.error);
         }
