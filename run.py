@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import os
+from dotenv import load_dotenv
+
+if os.getenv("RENDER") is None:
+    load_dotenv()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -16,8 +20,8 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Gmail SMTP server
 app.config['MAIL_PORT'] = 587  # TLS Port
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = "chloenicola7@gmail.com"  # Gmail
-app.config['MAIL_PASSWORD'] = "gxdp eyvr yvzd uvle"  # App Password
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender email
 
 mail = Mail(app)
