@@ -87,6 +87,11 @@ function showModal(itemId) {
             }
             document.getElementById('modal-price').innerText = priceText;
 
+            // Store item info for confirmation modal
+            document.getElementById('confirm-purchase').onclick = function() {
+                notifySeller(item);
+            };
+
             // Show modal
             document.getElementById('item-modal').style.display = 'flex';
         })
@@ -95,6 +100,7 @@ function showModal(itemId) {
             alert('Failed to load item details.');
         });
 }
+
 
 
 function closeModal(event) {
@@ -108,7 +114,16 @@ function closeModal(event) {
 
 
 function buyItem() {
-    alert(`Proceeding to purchase: ${currentItem.name}`);
+    document.getElementById("confirmation-modal").style.display = "flex";
+}
+
+function notifySeller(item) {
+    alert(`Notification sent to seller: ${item.owner_email}`);
+    closeConfirmationModal();
+}
+
+function closeConfirmationModal() {
+    document.getElementById("confirmation-modal").style.display = "none";
 }
 
 
