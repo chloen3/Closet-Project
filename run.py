@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_mail import Mail, Message
 import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -10,6 +11,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///closet.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Gmail SMTP server
+app.config['MAIL_PORT'] = 587  # TLS Port
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = "chloenicola7@gmail.com"  # Gmail
+app.config['MAIL_PASSWORD'] = "gxdp eyvr yvzd uvle"  # App Password
+app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender email
+
+mail = Mail(app)
 
 # Define Item Model
 class Item(db.Model):
@@ -117,6 +128,31 @@ def delete_item(item_id):
         db.session.commit()
         return jsonify({"message": "Item deleted successfully!"})
     return jsonify({"error": "Item not found"}), 404
+
+@app.route('/notify_seller', methods=['POST'])
+def notify_seller():
+    data = request.json  # Get JSON data from request
+    buyer_name = data.get("buyer_name")
+    buyer_email = data.get("buyer_email")
+    item_name = data.get("item_name")
+    seller_email = data.get("seller_email")
+
+    if not (buyer_name and buyer_email and item_name and seller_email):
+        return jsonify({"error": "Missing required information"}), 400
+
+    try:
+        msg = Message(
+            subject="Interest in Your Item on Closet 1821",
+            sender=app.config['MAIL_USERNAME'],
+            recipients=[seller_email],  # Send email to seller
+            body=f"Hello,\n\n{buyer_name} ({buyer_email}) is interested in purchasing '{item_name}'.\n\nPlease contact them to finalize the transaction.\n\nBest,\nCloset 1821"
+        )
+        mail.send(msg)
+        return jsonify({"message": "Notification email sent successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 
 # Start Flask Server
