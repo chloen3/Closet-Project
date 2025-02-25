@@ -118,9 +118,35 @@ function buyItem() {
 }
 
 function notifySeller(item) {
-    alert(`Notification sent to seller: ${item.owner_email}`);
+    const buyerName = localStorage.getItem("userName") || "Anonymous";
+    const buyerEmail = localStorage.getItem("owner_email") || "Unknown";
+
+    fetch("/notify_seller", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            buyer_name: buyerName,
+            buyer_email: buyerEmail,
+            item_name: item.name,
+            seller_email: item.owner_email
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert("Seller has been notified via email!");
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error sending email:", error);
+        alert("Failed to send email. Please try again.");
+    });
+
     closeConfirmationModal();
 }
+
 
 function closeConfirmationModal() {
     document.getElementById("confirmation-modal").style.display = "none";
