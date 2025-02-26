@@ -24,6 +24,7 @@ app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender email
 
+
 mail = Mail(app)
 
 # Define Item Model
@@ -40,6 +41,7 @@ class Item(db.Model):
 # Create database tables
 with app.app_context():
     db.create_all()
+
 
 # Serve Frontend Pages
 @app.route('/')
@@ -135,7 +137,7 @@ def delete_item(item_id):
 
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():
-    data = request.json  # Get JSON data from request
+    data = request.json
     buyer_name = data.get("buyer_name")
     buyer_email = data.get("buyer_email")
     item_name = data.get("item_name")
@@ -148,14 +150,17 @@ def notify_seller():
         msg = Message(
             subject="Interest in Your Item on Closet 1821",
             sender=app.config['MAIL_USERNAME'],
-            recipients=[seller_email],  # Send email to seller
+            recipients=[seller_email],
             body=f"Hello,\n\n{buyer_name} ({buyer_email}) is interested in purchasing '{item_name}'.\n\nPlease contact them to finalize the transaction.\n\nBest,\nCloset 1821"
         )
         mail.send(msg)
+        print("✅ Email sent successfully!")  # ✅ Force log
         return jsonify({"message": "Notification email sent successfully!"}), 200
 
     except Exception as e:
+        print(f"❌ Error sending email: {e}")  # ✅ Force log errors
         return jsonify({"error": str(e)}), 500
+
 
 
 
