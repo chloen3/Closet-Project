@@ -170,7 +170,7 @@ function addItem() {
     const rentPrice = rentChecked ? document.getElementById('rent-price').value.trim() : "";
     const buyPrice = buyChecked ? document.getElementById('buy-price').value.trim() : "";
     const imageInput = document.getElementById('item-images').files[0];
-    const ownerEmail = localStorage.getItem('userEmail') || 'guest@gmail.com';
+    const ownerEmail = localStorage.getItem('owner_email') || 'guest@gmail.com';
 
     if (!name || !imageInput) {
         alert('Please provide an item name and an image.');

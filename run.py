@@ -60,7 +60,7 @@ def add():
 def shop():
     return render_template('home.html')
 
-# API Route: Get Items
+# API Route: Get User Items
 @app.route('/get_user_items', methods=['GET'])
 def get_user_items():
     owner_email = request.args.get('owner_email', None)
