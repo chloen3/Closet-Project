@@ -120,6 +120,7 @@ function buyItem() {
 function notifySeller(item) {
     const buyerName = localStorage.getItem("userName") || "Anonymous";
     const buyerEmail = localStorage.getItem("owner_email") || "Unknown";
+    const buyerNumber = localStorage.getItem("phoneNumber") || "Unknown";
 
     fetch("/notify_seller", {
         method: "POST",
@@ -127,9 +128,9 @@ function notifySeller(item) {
         body: JSON.stringify({
             buyer_name: buyerName,
             buyer_email: buyerEmail,
+            buyer_number: buyerNumber,
             item_name: item.name,
             seller_email: item.owner_email,
-            seller_number: item.phoneNumber
         })
     })
     .then(response => response.json())
