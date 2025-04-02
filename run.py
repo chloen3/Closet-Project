@@ -64,6 +64,19 @@ def add():
 def shop():
     return render_template('home.html')
 
+@app.route('/feedback')
+def feedback():
+    return render_template('feedback.html')
+
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    feedback_text = request.form.get('feedback')
+    if feedback_text:
+        print("📝 Feedback received:", feedback_text)  # You can log it, save it, or email it
+        return "Thanks for your feedback!"
+    return "No feedback submitted.", 400
+
+
 # API Route: Get User Items
 @app.route('/get_user_items', methods=['GET'])
 def get_user_items():
