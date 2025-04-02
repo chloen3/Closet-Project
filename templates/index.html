@@ -50,6 +50,7 @@
         <h2>Welcome to Closet 1821</h2>
         <input type="text" id="name" placeholder="Enter your name">
         <input type="email" id="email" placeholder="Enter your Gmail">
+        <input type="number" id="phone_number" placeholder="Enter your Phone Number">
         <button onclick="login()">Submit</button>
     </div>
 
@@ -57,6 +58,7 @@
         function login() {
             const name = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim().toLowerCase(); // Store emails in lowercase
+            const number = document.getElementById('phone_number').value.trim()
     
             if (!name || !email) {
                 alert('Please fill in both fields!');
@@ -74,6 +76,7 @@
     
             localStorage.setItem('owner_email', email);
             localStorage.setItem('userName', name);
+            localStorage.setItem('phoneNumber', number);
             window.location.href = '/home';
         }
     </script>

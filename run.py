@@ -10,6 +10,7 @@ if os.getenv("RENDER") is None:
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+
 # Database Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///closet.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,6 +27,10 @@ app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender e
 
 
 mail = Mail(app)
+
+with app.app_context():
+    db.create_all()
+
 
 # Define Item Model
 class Item(db.Model):
@@ -110,6 +115,7 @@ def add_item():
     rent_price = request.form.get('rent_price', None)
     buy_price = request.form.get('buy_price', None)
     owner_email = request.form.get('owner_email', 'guest@gmail.com')
+    owner_number = request.form.get('phoneNumber', None)
     image = request.files['image']
 
     # Save the image

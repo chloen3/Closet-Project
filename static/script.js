@@ -128,7 +128,8 @@ function notifySeller(item) {
             buyer_name: buyerName,
             buyer_email: buyerEmail,
             item_name: item.name,
-            seller_email: item.owner_email
+            seller_email: item.owner_email,
+            seller_number: item.phoneNumber
         })
     })
     .then(response => response.json())
@@ -171,6 +172,7 @@ function addItem() {
     const buyPrice = buyChecked ? document.getElementById('buy-price').value.trim() : "";
     const imageInput = document.getElementById('item-images').files[0];
     const ownerEmail = localStorage.getItem('owner_email') || 'guest@gmail.com';
+    const ownerNumber = localStorage.getItem('phoneNumber');
 
     if (!name || !imageInput) {
         alert('Please provide an item name and an image.');
@@ -184,6 +186,7 @@ function addItem() {
     formData.append('buy_price', buyPrice);
     formData.append('image', imageInput);
     formData.append('owner_email', ownerEmail);
+    formData.append('phoneNumber', ownerNumber);
 
     fetch('/add_item', {
         method: 'POST',
