@@ -28,9 +28,6 @@ app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender e
 
 mail = Mail(app)
 
-with app.app_context():
-    db.create_all()
-
 
 # Define Item Model
 class Item(db.Model):
@@ -41,6 +38,8 @@ class Item(db.Model):
     buy_price = db.Column(db.String(20), nullable=True)
     image_path = db.Column(db.String(200), nullable=False)
     owner_email = db.Column(db.String(100), nullable=False)  # Track item owner by email
+    owner_number = db.Column(db.String(20), nullable=True)
+    
 
 
 # Create database tables
@@ -81,7 +80,8 @@ def get_user_items():
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
             "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
-            "owner_email": item.owner_email
+            "owner_email": item.owner_email,
+            "owner_number": item.owner_number
         }
         for item in user_items
     ]
@@ -98,7 +98,8 @@ def get_items():
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
             "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
-            "owner_email": item.owner_email
+            "owner_email": item.owner_email,
+            "owner_number": item.owner_number
         }
         for item in items
     ]
@@ -126,7 +127,7 @@ def add_item():
 
     # Save to database
     new_item = Item(name=name, description=description, rent_price=rent_price,
-                    buy_price=buy_price, image_path=image_path, owner_email=owner_email)
+                    buy_price=buy_price, image_path=image_path, owner_email=owner_email, owner_number=owner_number)
     db.session.add(new_item)
     db.session.commit()
 
@@ -148,6 +149,7 @@ def notify_seller():
     buyer_email = data.get("buyer_email")
     item_name = data.get("item_name")
     seller_email = data.get("seller_email")
+    buyer_number = data.get("buyer_number")
 
     if not (buyer_name and buyer_email and item_name and seller_email):
         return jsonify({"error": "Missing required information"}), 400
@@ -157,7 +159,13 @@ def notify_seller():
             subject="Interest in Your Item on Closet 1821",
             sender=app.config['MAIL_USERNAME'],
             recipients=[seller_email],
-            body=f"Hello,\n\n{buyer_name} ({buyer_email}) is interested in purchasing '{item_name}'.\n\nPlease contact them to finalize the transaction.\n\nBest,\nCloset 1821"
+            body = (
+                f"Hello,\n\n"
+                f"{buyer_name} ({buyer_email}, Phone: {buyer_number}) is interested in '{item_name}'.\n\n"
+                f"You can text or call them to finalize the transaction.\n\n"
+                f"Best,\nCloset 1821"
+            )
+
         )
         mail.send(msg)
         print("✅ Email sent successfully!")  # ✅ Force log
