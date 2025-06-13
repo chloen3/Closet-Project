@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Closet 1821 - Login</title>
+    <title>Closet 1821 - Welcome</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -15,71 +14,48 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column;
         }
-        .login-form {
-            width: 300px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
-        .login-form input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #333333;
         }
-        .login-form button {
-            width: 100%;
-            padding: 10px;
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .button-group a button {
             background-color: #000000;
             color: #ffffff;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 12px 24px;
             font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .login-form button:hover {
+
+        .button-group a button:hover {
             background-color: #333333;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <div class="login-form">
-        <h2>Welcome to Closet 1821</h2>
-        <input type="text" id="name" placeholder="Enter your name">
-        <input type="email" id="email" placeholder="Enter your Gmail">
-        <input type="number" id="phone_number" placeholder="Enter your Phone Number">
-        <button onclick="login()">Submit</button>
+    <h1>Welcome to Closet 1821</h1>
+    <p>Rent, sell, buy.</p>
+    <div class="button-group">
+        <a href="/login"><button>Log In</button></a>
+        <a href="/register"><button>Sign Up</button></a>
     </div>
-
-    <script>
-        function login() {
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim().toLowerCase(); // Store emails in lowercase
-            const number = document.getElementById('phone_number').value.trim()
-    
-            if (!name || !email) {
-                alert('Please fill in both fields!');
-                return;
-            }
-    
-            let users = JSON.parse(localStorage.getItem('users')) || {};
-            if (users[email]) {
-                alert(`Welcome back, ${users[email].name}!`);
-            } else {
-                users[email] = { name, email };
-                localStorage.setItem('users', JSON.stringify(users));
-                alert('Account created successfully!');
-            }
-    
-            localStorage.setItem('owner_email', email);
-            localStorage.setItem('userName', name);
-            localStorage.setItem('phoneNumber', number);
-            window.location.href = '/home';
-        }
-    </script>
-    
 </body>
 </html>
