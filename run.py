@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import os
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
 
 if os.getenv("RENDER") is None:
     load_dotenv()
@@ -24,6 +26,12 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = "chloenicola7@gmail.com"  # Default sender email
+
+cloudinary.config(
+  cloud_name=os.getenv("CLOUD_NAME"),
+  api_key=os.getenv("CLOUD_API_KEY"),
+  api_secret=os.getenv("CLOUD_API_SECRET")
+)
 
 
 mail = Mail(app)
@@ -92,7 +100,7 @@ def get_user_items():
             "description": item.description,
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
-            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
+            "image_path": item.image_path,
             "owner_email": item.owner_email,
             "owner_number": item.owner_number
         }
@@ -110,7 +118,7 @@ def get_items():
             "description": item.description,
             "rent_price": item.rent_price,
             "buy_price": item.buy_price,
-            "image_path": f"/static/uploads/{os.path.basename(item.image_path)}",
+            "image_path": item.image_path,
             "owner_email": item.owner_email,
             "owner_number": item.owner_number
         }
@@ -132,15 +140,23 @@ def add_item():
     owner_number = request.form.get('phoneNumber', None)
     image = request.files['image']
 
-    # Save the image
-    upload_folder = "static/uploads"
-    os.makedirs(upload_folder, exist_ok=True)
-    image_path = os.path.join(upload_folder, image.filename)
-    image.save(image_path)
+    try:
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(image)
+        image_url = upload_result['secure_url']
+    except Exception as e:
+        return jsonify({"error": f"Image upload failed: {e}"}), 500
 
     # Save to database
-    new_item = Item(name=name, description=description, rent_price=rent_price,
-                    buy_price=buy_price, image_path=image_path, owner_email=owner_email, owner_number=owner_number)
+    new_item = Item(
+        name=name,
+        description=description,
+        rent_price=rent_price,
+        buy_price=buy_price,
+        image_path=image_url,  # Now storing URL instead of local path
+        owner_email=owner_email,
+        owner_number=owner_number
+    )
     db.session.add(new_item)
     db.session.commit()
 
