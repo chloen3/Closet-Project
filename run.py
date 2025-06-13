@@ -6,11 +6,16 @@ import os
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import redirect
 
 if os.getenv("RENDER") is None:
     load_dotenv()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+app.secret_key = os.getenv("SUPER_SECRET_KEY")
 
 
 # Database Configuration
@@ -33,9 +38,7 @@ cloudinary.config(
   api_secret=os.getenv("CLOUD_API_SECRET")
 )
 
-
 mail = Mail(app)
-
 
 # Define Item Model
 class Item(db.Model):
@@ -47,13 +50,18 @@ class Item(db.Model):
     image_path = db.Column(db.String(200), nullable=False)
     owner_email = db.Column(db.String(100), nullable=False)  # Track item owner by email
     owner_number = db.Column(db.String(20), nullable=True)
-    
 
+# Define User Model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    
 
 # Create database tables
 with app.app_context():
     db.create_all()
-
 
 # Serve Frontend Pages
 @app.route('/')
@@ -63,6 +71,68 @@ def home():
 @app.route('/account')
 def account():
     return render_template('account.html')
+
+@app.route('/login', methods=['GET'])
+def login_page():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def handle_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password_hash, password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    session['user_email'] = user.email
+
+    return jsonify({"message": "Login successful"}), 200
+
+
+
+@app.route('/register', methods=['GET'])
+def register_page():
+    return render_template('register.html')
+
+@app.route('/register', methods=['POST'])
+def handle_register():
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not name or not email or not password:
+        return jsonify({"error": "All fields are required."}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already registered."}), 409
+
+    hashed_pw = generate_password_hash(password)
+    user = User(name=name, email=email, password_hash=hashed_pw)
+    db.session.add(user)
+    db.session.commit()
+
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    session['user_email'] = user.email
+
+    return jsonify({"message": "Registration successful!"}), 200
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"})
+
+@app.route('/me', methods=['GET'])
+def me():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    return jsonify({"name": session['user_name'], "email": session['user_email']})
+
 
 @app.route('/add')
 def add():
@@ -78,11 +148,21 @@ def feedback():
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
-    feedback_text = request.form.get('feedback')
-    if feedback_text:
-        print("📝 Feedback received:", feedback_text)  # You can log it, save it, or email it
-        return "Thanks for your feedback!"
-    return "No feedback submitted.", 400
+    data = request.get_json()
+    feedback_text = data.get('feedback')
+
+    if not feedback_text:
+        return jsonify({'error': 'Feedback is required'}), 400
+
+    try:
+        msg = Message(subject="New Closet 1821 Feedback",
+                      recipients=[app.config['MAIL_DEFAULT_SENDER']],
+                      body=feedback_text)
+        mail.send(msg)
+        return jsonify({'message': 'Feedback received'}), 200
+    except Exception as e:
+        print("Email sending error:", e)
+        return jsonify({'error': 'Failed to send feedback'}), 500
 
 
 # API Route: Get User Items

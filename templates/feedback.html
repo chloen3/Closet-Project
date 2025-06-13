@@ -149,6 +149,28 @@
     </main>
     
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.getElementById('feedback-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const feedback = document.getElementById('feedback').value;
+        
+            fetch('/submit_feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ feedback: feedback })
+            })
+            .then(res => {
+                if (res.ok) {
+                    // Show popup
+                    alert('💖 Thanks for your feedback!');
+                    // Redirect after popup
+                    window.location.href = '/home';
+                } else {
+                    alert('Oops! Something went wrong.');
+                }
+            });
+        });
+        </script>
+        
 </body>
 </html>

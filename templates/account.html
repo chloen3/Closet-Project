@@ -6,9 +6,9 @@
     <title>Closet 1821 - Account</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Arial', sans-serif;
             background-color: #ffffff;
             color: #000000;
         }
@@ -23,6 +23,8 @@
             margin: 0;
             position: fixed;
             width: 100%;
+            top: 0;
+            z-index: 1000;
         }
 
         nav {
@@ -33,7 +35,8 @@
             padding: 10px 0;
             position: fixed;
             width: 100%;
-            top: 80px;
+            top: 80px; /* right below header */
+            z-index: 1000;
         }
 
         nav a {
@@ -51,10 +54,9 @@
         }
 
         main {
-            padding: 140px 20px 60px;
-            max-width: 900px;
-            margin: 0 auto;
+            padding: 170px 50px 50px; /* space for header + nav */
         }
+
 
         h2 {
             font-size: 1.5em;
@@ -64,9 +66,14 @@
 
         .user-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(4, minmax(200px, 1fr));
             gap: 20px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
         }
+
 
         .item-card {
             border: 1px solid #dddddd;
@@ -115,6 +122,10 @@
             background-color: #ffffff;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
+        .center-text {
+            text-align: center;
+        }
+
 
     </style>
 </head>
@@ -127,8 +138,10 @@
         <a href="/feedback">Feedback</a>
     </nav>
     <main>
-        <h2 id="welcome-message">Hello, <span id="user-name"></span>!</h2>
-        <h2>Your Posted Items:</h2>
+        <div class="center-text">
+            <h2 id="welcome-message">Hello, <span id="user-name"></span>!</h2>
+            <h2>Your Posted Items:</h2>
+        </div>          
         <div class="user-items" id="user-items">
             <!-- User's items will load here dynamically -->
         </div>

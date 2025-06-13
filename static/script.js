@@ -1,19 +1,43 @@
-
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    loadUser();
     loadItems();
+
+    if (window.location.pathname === "/account") {
+        loadUserItems();
+    }
+
+    const rentCheckbox = document.getElementById('rent');
+    const buyCheckbox = document.getElementById('buy');
+    if (rentCheckbox) rentCheckbox.addEventListener('change', toggleRentPrice);
+    if (buyCheckbox) buyCheckbox.addEventListener('change', toggleBuyPrice);
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-    const userName = localStorage.getItem("userName") || "Guest";
-    document.getElementById("user-name").textContent = userName;
-});
+function loadUser() {
+    fetch('/me', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(data => {
+        const nameSpan = document.getElementById("user-name");
+        if (nameSpan) {
+            nameSpan.textContent = data.name || "Guest";
+        }
+    })
+    .catch(() => {
+        const nameSpan = document.getElementById("user-name");
+        if (nameSpan) {
+            nameSpan.textContent = "Guest";
+        }
+    });
+}
 
 function loadItems() {
     fetch('/get_items')
         .then(response => response.json())
         .then(data => {
             const featuredItems = document.getElementById('featured-items');
+            if (!featuredItems) return;
             featuredItems.innerHTML = '';
 
             data.items.forEach(item => {
@@ -26,73 +50,31 @@ function loadItems() {
                     <p>${item.rent_price ? `Rent: $${item.rent_price}` : ''}</p>
                     <p>${item.buy_price ? `Buy: $${item.buy_price}` : ''}</p>
                 `;
-
-                // Make the whole item clickable
                 itemCard.addEventListener('click', () => showModal(item.id));
-
                 featuredItems.appendChild(itemCard);
             });
         })
         .catch(error => console.error('Error:', error));
 }
 
-
-// Function to display items on the page
-function displayItems(items) {
-    const featuredItems = document.getElementById('featured-items');
-    featuredItems.innerHTML = ''; // Clear previous items
-
-    items.forEach((item, index) => {
-        const firstImage = item.images && item.images.length > 0 ? item.images[0] : 'placeholder.png';
-        const rentPrice = item.rentPrice ? `Rent: $${item.rentPrice}` : '';
-        const buyPrice = item.buyPrice ? `Buy: $${item.buyPrice}` : '';
-
-        const itemCard = document.createElement('div');
-        itemCard.classList.add('item-card');
-        itemCard.innerHTML = `
-            <img src="${firstImage}" alt="${item.name}">
-            <h3>${item.name}</h3>
-            <p>${item.description}</p>
-            ${rentPrice ? `<p>${rentPrice}</p>` : ''}
-            ${buyPrice ? `<p>${buyPrice}</p>` : ''}
-        `;
-        featuredItems.appendChild(itemCard);
-    });
-}
-
-
 function showModal(itemId) {
     fetch(`/get_items`)
         .then(response => response.json())
         .then(data => {
             const item = data.items.find(i => i.id === itemId);
-            if (!item) {
-                alert('Item not found.');
-                return;
-            }
+            if (!item) return alert('Item not found.');
 
-            // Set modal content
             document.getElementById('modal-image').src = item.image_path;
             document.getElementById('modal-title').innerText = item.name;
             document.getElementById('modal-description').innerText = item.description;
-            let priceText = '';
-            if (item.rent_price && item.buy_price) {
-                priceText = `Rent: $${item.rent_price} | Buy: $${item.buy_price}`;
-            } else if (item.rent_price) {
-                priceText = `Rent: $${item.rent_price}`;
-            } else if (item.buy_price) {
-                priceText = `Buy: $${item.buy_price}`;
-            } else {
-                priceText = 'Not for sale';
-            }
+
+            let priceText = item.rent_price && item.buy_price ?
+                `Rent: $${item.rent_price} | Buy: $${item.buy_price}` :
+                item.rent_price ? `Rent: $${item.rent_price}` :
+                item.buy_price ? `Buy: $${item.buy_price}` : 'Not for sale';
+
             document.getElementById('modal-price').innerText = priceText;
-
-            // Store item info for confirmation modal
-            document.getElementById('confirm-purchase').onclick = function() {
-                notifySeller(item);
-            };
-
-            // Show modal
+            document.getElementById('confirm-purchase').onclick = () => notifySeller(item);
             document.getElementById('item-modal').style.display = 'flex';
         })
         .catch(error => {
@@ -101,68 +83,60 @@ function showModal(itemId) {
         });
 }
 
-
-
 function closeModal(event) {
     const modal = document.getElementById('item-modal');
-
-    // Close modal only if the click is outside the modal-content
-    if (!event || event.target === modal) {
-        modal.style.display = 'none';
-    }
+    if (!event || event.target === modal) modal.style.display = 'none';
 }
-
 
 function buyItem() {
     document.getElementById("confirmation-modal").style.display = "flex";
 }
 
-function notifySeller(item) {
-    const buyerName = localStorage.getItem("userName") || "Anonymous";
-    const buyerEmail = localStorage.getItem("owner_email") || "Unknown";
-    const buyerNumber = localStorage.getItem("phoneNumber") || "Unknown";
-
-    fetch("/notify_seller", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            buyer_name: buyerName,
-            buyer_email: buyerEmail,
-            buyer_number: buyerNumber,
-            item_name: item.name,
-            seller_email: item.owner_email,
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert("Seller has been notified via email!");
-
-            // ✅ Remove the item from the site
-            fetch(`/delete_item/${item.id}`, { method: "DELETE" })
-                .then(response => response.json())
-                .then(() => {
-                    // alert("Item removed from site.");
-                    window.location.reload(); // ✅ Refresh the page to update items
-                })
-                .catch(error => console.error("Error removing item:", error));
-        } else {
-            alert("Error: " + data.error);
-        }
-    })
-    .catch(error => {
-        console.error("Error sending email:", error);
-        alert("Failed to send email. Please try again.");
-    });
-
-    closeConfirmationModal();
-}
-
-
 function closeConfirmationModal() {
     document.getElementById("confirmation-modal").style.display = "none";
 }
 
+function notifySeller(item) {
+    fetch('/me', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(data => {
+        const buyerName = data.name;
+        const buyerEmail = data.email;
+
+        fetch("/notify_seller", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: 'include',
+            body: JSON.stringify({
+                buyer_name: buyerName,
+                buyer_email: buyerEmail,
+                buyer_number: "Not Provided",
+                item_name: item.name,
+                seller_email: item.owner_email
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert("Seller has been notified via email!");
+                fetch(`/delete_item/${item.id}`, { method: "DELETE" })
+                    .then(() => window.location.reload())
+                    .catch(error => console.error("Error removing item:", error));
+            } else {
+                alert("Error: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error sending email:", error);
+            alert("Failed to send email. Please try again.");
+        });
+    });
+
+    closeConfirmationModal();
+}
 
 function addItem() {
     const name = document.getElementById('item-name').value.trim();
@@ -172,8 +146,6 @@ function addItem() {
     const rentPrice = rentChecked ? document.getElementById('rent-price').value.trim() : "";
     const buyPrice = buyChecked ? document.getElementById('buy-price').value.trim() : "";
     const imageInput = document.getElementById('item-images').files[0];
-    const ownerEmail = localStorage.getItem('owner_email') || 'guest@gmail.com';
-    const ownerNumber = localStorage.getItem('phoneNumber');
 
     if (!name || !imageInput) {
         alert('Please provide an item name and an image.');
@@ -186,35 +158,25 @@ function addItem() {
     formData.append('rent_price', rentPrice);
     formData.append('buy_price', buyPrice);
     formData.append('image', imageInput);
-    formData.append('owner_email', ownerEmail);
-    formData.append('phoneNumber', ownerNumber);
 
     fetch('/add_item', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to add item.');
-        }
+        if (!response.ok) throw new Error('Failed to add item.');
         return response.json();
     })
-    .then(data => {
+    .then(() => {
         alert('Item added successfully!');
-        setTimeout(() => {
-            window.location.href = '/home';
-        }, 500);
+        setTimeout(() => window.location.href = '/home', 500);
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to add item. Please try again.');
     });
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('rent').addEventListener('change', toggleRentPrice);
-    document.getElementById('buy').addEventListener('change', toggleBuyPrice);
-});
 
 function toggleRentPrice() {
     const rentPriceInput = document.getElementById('rent-price');
@@ -227,63 +189,56 @@ function toggleBuyPrice() {
 }
 
 function loadUserItems() {
-    const ownerEmail = localStorage.getItem("owner_email");
-    if (!ownerEmail) {
-        alert("You are not logged in.");
-        return;
-    }
+    fetch('/me', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(user => {
+        if (!user.email) return alert("You are not logged in.");
 
-    fetch(`/get_user_items?owner_email=${encodeURIComponent(ownerEmail)}`)
-        .then(response => response.json())
-        .then(data => {
-            const userItemsContainer = document.getElementById("user-items");
-            userItemsContainer.innerHTML = "";
+        fetch(`/get_user_items?owner_email=${encodeURIComponent(user.email)}`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById("user-items");
+                if (!container) return;
+                container.innerHTML = "";
 
-            if (data.items.length === 0) {
-                userItemsContainer.innerHTML = "<p>You have not posted any items yet.</p>";
-                return;
-            }
+                if (data.items.length === 0) {
+                    container.innerHTML = "<p>You have not posted any items yet.</p>";
+                    return;
+                }
 
-            data.items.forEach(item => {
-                const itemCard = document.createElement("div");
-                itemCard.classList.add("item-card");
-                itemCard.innerHTML = `
-                    <div class="delete-container">
-                        <button class="delete-btn" onclick="deleteItem(${item.id})">✖</button>
-                    </div>
-                    <img src="${item.image_path}" alt="${item.name}">
-                    <h3>${item.name}</h3>
-                    <p>${item.description}</p>
-                    ${item.rent_price ? `<p>Rent: $${item.rent_price}</p>` : ''}
-                    ${item.buy_price ? `<p>Buy: $${item.buy_price}</p>` : ''}
-                `;
-                userItemsContainer.appendChild(itemCard);
+                data.items.forEach(item => {
+                    const card = document.createElement("div");
+                    card.classList.add("item-card");
+                    card.innerHTML = `
+                        <div class="delete-container">
+                            <button class="delete-btn" onclick="deleteItem(${item.id})">✖</button>
+                        </div>
+                        <img src="${item.image_path}" alt="${item.name}">
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                        ${item.rent_price ? `<p>Rent: $${item.rent_price}</p>` : ''}
+                        ${item.buy_price ? `<p>Buy: $${item.buy_price}</p>` : ''}
+                    `;
+                    container.appendChild(card);
+                });
             });
-        })
-        .catch(error => console.error("Error fetching user items:", error));
+    })
+    .catch(() => alert("Failed to verify user login."));
 }
-
-// Load user's items on account page
-document.addEventListener("DOMContentLoaded", function () {
-    if (window.location.pathname === "/account") {
-        loadUserItems();
-    }
-});
-
-
 
 function deleteItem(itemId) {
     fetch(`/delete_item/${itemId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
     })
     .then(response => response.json())
-    .then(data => {
+    .then(() => {
         alert('Item deleted successfully!');
         window.location.reload();
-        loadItems(); // Reload the items list
+        loadItems();
     })
     .catch(error => console.error('Error deleting item:', error));
 }
-
-
-
