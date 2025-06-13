@@ -113,7 +113,6 @@ function notifySeller(item) {
             body: JSON.stringify({
                 buyer_name: buyerName,
                 buyer_email: buyerEmail,
-                buyer_number: "Not Provided",
                 item_name: item.name,
                 seller_email: item.owner_email
             })

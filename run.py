@@ -270,8 +270,8 @@ def notify_seller():
             recipients=[seller_email],
             body = (
                 f"Hello,\n\n"
-                f"{buyer_name} ({buyer_email}, Phone: {buyer_number}) is interested in '{item_name}'.\n\n"
-                f"You can text or call them to finalize the transaction.\n\n"
+                f"{buyer_name} ({buyer_email}) is interested in '{item_name}'.\n\n"
+                f"Message them to finalize the transaction.\n\n"
                 f"Best,\nCloset 1821"
             )
 
