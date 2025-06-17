@@ -31,3 +31,6 @@ migrations/
 *.log
 logs/
 
+firebase-key.json
+
+
