@@ -1,26 +1,27 @@
 from flask import Flask, request, jsonify, render_template, session, redirect
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
-import cloudinary
-import cloudinary.uploader
+from datetime import timedelta
+import firebase_admin
+from firebase_admin import credentials, firestore
 
+# Load environment variables
 if os.getenv("RENDER") is None:
     load_dotenv()
 
+# Initialize Firebase
+cred = credentials.Certificate("firebase-key.json")
+firebase_admin.initialize_app(cred)
+firestore_db = firestore.client()
+
+# Initialize Flask
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
+app.permanent_session_lifetime = timedelta(days=30)
 
-# Database Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///closet.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-# Mail Config
+# Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -28,38 +29,8 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER") or "chloenicola7@gmail.com"
-
-# Cloudinary Config
-cloudinary.config(
-    cloud_name=os.getenv("CLOUD_NAME"),
-    api_key=os.getenv("CLOUD_API_KEY"),
-    api_secret=os.getenv("CLOUD_API_SECRET")
-)
-
 mail = Mail(app)
 
-# Models
-class Item(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(200), nullable=True)
-    rent_price = db.Column(db.String(20), nullable=True)
-    buy_price = db.Column(db.String(20), nullable=True)
-    image_path = db.Column(db.String(200), nullable=False)
-    owner_email = db.Column(db.String(100), nullable=False)
-    owner_number = db.Column(db.String(20), nullable=True)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    buyer_number = db.Column(db.String(20), nullable=True)
-
-with app.app_context():
-    db.create_all()
-
-# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -94,14 +65,19 @@ def handle_login():
     email = data.get("email")
     password = data.get("password")
 
-    user = User.query.filter_by(email=email).first()
-    if not user or not check_password_hash(user.password_hash, password):
+    user_ref = firestore_db.collection("users").document(email)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
         return jsonify({"error": "Invalid credentials"}), 401
 
-    session["user_id"] = user.id
-    session["user_name"] = user.name
-    session["user_email"] = user.email
-    session["buyer_number"] = user.buyer_number
+    user = user_doc.to_dict()
+    if not check_password_hash(user['password_hash'], password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    session.permanent = True
+    session["user_email"] = user['email']
+    session["user_name"] = user['name']
+    session["buyer_number"] = user.get('buyer_number', '')
     return jsonify({"message": "Login successful"}), 200
 
 @app.route('/register', methods=['POST'])
@@ -112,22 +88,20 @@ def handle_register():
     password = data.get("password")
     phone = data.get("phone", "")
 
-    if User.query.filter_by(email=email).first():
+    user_ref = firestore_db.collection("users").document(email)
+    if user_ref.get().exists:
         return jsonify({"error": "Email already registered"}), 400
 
-    user = User(
-        name=name,
-        email=email,
-        password_hash=generate_password_hash(password),
-        buyer_number=phone
-    )
-    db.session.add(user)
-    db.session.commit()
+    user_ref.set({
+        "name": name,
+        "email": email,
+        "password_hash": generate_password_hash(password),
+        "buyer_number": phone
+    })
 
-    session["user_id"] = user.id
-    session["user_name"] = user.name
-    session["user_email"] = user.email
-    session["buyer_number"] = user.buyer_number
+    session["user_email"] = email
+    session["user_name"] = name
+    session["buyer_number"] = phone
     return jsonify({"message": "Registration successful"}), 200
 
 @app.route('/logout', methods=['POST'])
@@ -137,7 +111,7 @@ def logout():
 
 @app.route('/me', methods=['GET'])
 def me():
-    if 'user_id' not in session:
+    if 'user_email' not in session:
         return jsonify({"error": "Unauthorized"}), 401
     return jsonify({
         "name": session.get("user_name"),
@@ -159,8 +133,9 @@ def submit_feedback():
                       body=feedback_text)
         mail.send(msg)
         return jsonify({'message': 'Feedback received'}), 200
-    except Exception as e:
+    except Exception:
         return jsonify({'error': 'Failed to send feedback'}), 500
+mail = Mail(app)
 
 @app.route('/add_item', methods=['POST'])
 def add_item():
@@ -276,4 +251,5 @@ def notify_seller():
 
 # Run server
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
+
