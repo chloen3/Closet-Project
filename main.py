@@ -12,7 +12,7 @@ if os.getenv("RENDER") is None:
     load_dotenv()
 
 # Initialize Firebase
-cred = credentials.Certificate("firebase-key.json")
+cred = credentials.Certificate("/secrets/firebase-key.json")
 firebase_admin.initialize_app(cred)
 firestore_db = firestore.client()
 
