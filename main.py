@@ -162,36 +162,44 @@ def submit_feedback():
 
 @app.route('/add_item', methods=['POST'])
 def add_item():
-    if 'image' not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
-
-    name = request.form.get('name')
-    description = request.form.get('description', 'No description provided')
-    rent_price = request.form.get('rent_price', None)
-    buy_price = request.form.get('buy_price', None)
-    owner_email = session.get('user_email', 'guest@gmail.com')
-    owner_number = session.get('buyer_number', '')
-    image = request.files['image']
-
     try:
+        if 'image' not in request.files:
+            print("❌ No image in form submission")
+            return jsonify({"error": "No image uploaded"}), 400
+
+        name = request.form.get('name')
+        description = request.form.get('description', 'No description provided')
+        rent_price = request.form.get('rent_price', None)
+        buy_price = request.form.get('buy_price', None)
+        owner_email = session.get('user_email', 'guest@gmail.com')
+        owner_number = session.get('buyer_number', '')
+        image = request.files['image']
+
+        print(f"🧾 Adding item: {name}, rent: {rent_price}, buy: {buy_price}")
+        
+        # Upload to GCS
         image_url = upload_to_gcs(image, image.filename, image.content_type)
+        print("✅ Uploaded image to:", image_url)
+
+        # Store in Firestore
+        item_data = {
+            "name": name,
+            "description": description,
+            "rent_price": rent_price,
+            "buy_price": buy_price,
+            "image_path": image_url,
+            "owner_email": owner_email,
+            "owner_number": owner_number
+        }
+
+        firestore_db.collection("items").add(item_data)
+        print("✅ Item added to Firestore")
+        return jsonify({"message": "Item added successfully!"})
+
     except Exception as e:
-        return jsonify({"error": f"Image upload failed: {e}"}), 500
+        print("🔥 ERROR in /add_item:", e)
+        return jsonify({"error": "Something went wrong while adding item."}), 500
 
-    # Save item in Firestore
-    item_data = {
-        "name": name,
-        "description": description,
-        "rent_price": rent_price,
-        "buy_price": buy_price,
-        "image_path": image_url,
-        "owner_email": owner_email,
-        "owner_number": owner_number
-    }
-
-    firestore_db.collection("items").add(item_data)
-
-    return jsonify({"message": "Item added successfully!"})
 
 @app.route('/get_items', methods=['GET'])
 def get_items():
