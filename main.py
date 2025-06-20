@@ -22,6 +22,8 @@ if not firebase_key_path or not os.path.exists(firebase_key_path):
 cred = credentials.Certificate(firebase_key_path)
 firebase_admin.initialize_app(cred)
 
+firestore_db = firestore.client()
+
 
 # Flask Init
 app = Flask(__name__, static_folder='static', template_folder='templates')
