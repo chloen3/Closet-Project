@@ -59,6 +59,17 @@ def test_db():
     docs = firestore_db.collection("users").stream()
     return {"documents": [doc.id for doc in docs]}
 
+@app.route("/test_storage")
+def test_storage():
+    try:
+        from google.cloud import storage
+        storage_client = storage.Client()
+        buckets = list(storage_client.list_buckets())
+        return {"buckets": [b.name for b in buckets]}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
 @app.route('/home')
 def shop():
     return render_template('home.html')
