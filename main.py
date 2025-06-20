@@ -20,7 +20,9 @@ if not firebase_key_path or not os.path.exists(firebase_key_path):
     raise FileNotFoundError(f"FIREBASE_KEY_PATH is not set or file doesn't exist: {firebase_key_path}")
 
 cred = credentials.Certificate(firebase_key_path)
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'closet1821-images.appspot.com'
+})
 
 firestore_db = firestore.client()
 
@@ -47,7 +49,7 @@ def upload_to_gcs(file_obj, filename, content_type):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(f"items/{uuid.uuid4()}-{filename}")
     blob.upload_from_file(file_obj, content_type=content_type)
-    blob.make_public()  # Optional: remove if using signed URLs
+    blob.make_public()
     return blob.public_url
 
 @app.route('/')
