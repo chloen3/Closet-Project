@@ -9,8 +9,8 @@ COPY . /app
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Point Firebase to the secret path (mounted at runtime by Cloud Run)
-ENV FIREBASE_KEY_PATH=/secrets/firebase-key/firebase-key.json
-ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/firebase-key.json
+ENV FIREBASE_KEY_PATH=/secrets/firebase-key/secrets
+ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/secrets
 
 # Cloud Run uses port 8080
 EXPOSE 8080
