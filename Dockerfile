@@ -1,22 +1,13 @@
-# Use the official Python image
-FROM python:3.9
+FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Create working directory
 WORKDIR /app
 
-# Copy project files into the container
 COPY . /app
 
-# Install dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Expose port (Cloud Run sets this dynamically)
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-key.json
+
 EXPOSE 8080
 
-# Run the app
-CMD ["python", "main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]
