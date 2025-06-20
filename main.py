@@ -14,10 +14,14 @@ if os.getenv("RENDER") is None:
     load_dotenv()
 
 # Firebase & Firestore Init
-firebase_key_path = os.getenv("FIREBASE_KEY_PATH", "firebase-key.json")
+firebase_key_path = os.getenv("FIREBASE_KEY_PATH")
+
+if not firebase_key_path or not os.path.exists(firebase_key_path):
+    raise FileNotFoundError(f"❌ FIREBASE_KEY_PATH is not set or file doesn't exist: {firebase_key_path}")
+
 cred = credentials.Certificate(firebase_key_path)
 firebase_admin.initialize_app(cred)
-firestore_db = firestore.client()
+
 
 # Flask Init
 app = Flask(__name__, static_folder='static', template_folder='templates')
