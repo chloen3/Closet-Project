@@ -6,23 +6,25 @@ from dotenv import load_dotenv
 from datetime import timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud import storage
+import uuid
 
 # Load environment variables
 if os.getenv("RENDER") is None:
     load_dotenv()
 
-# Initialize Firebase
+# Firebase & Firestore Init
 firebase_key_path = os.getenv("FIREBASE_KEY_PATH", "firebase-key.json")
 cred = credentials.Certificate(firebase_key_path)
 firebase_admin.initialize_app(cred)
 firestore_db = firestore.client()
 
-# Initialize Flask
+# Flask Init
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
-# Mail configuration
+# Mail Config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -32,15 +34,23 @@ app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER") or "chloenicola7@gmail.com"
 mail = Mail(app)
 
+# GCS Upload Helper
+def upload_to_gcs(file_obj, filename, content_type):
+    bucket_name = "closet1821-images"
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(f"items/{uuid.uuid4()}-{filename}")
+    blob.upload_from_file(file_obj, content_type=content_type)
+    blob.make_public()  # Optional: remove if using signed URLs
+    return blob.public_url
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route("/test_db")
 def test_db():
-    from firebase_admin import firestore
-    db = firestore.client()
-    docs = db.collection("users").stream()
+    docs = firestore_db.collection("users").stream()
     return {"documents": [doc.id for doc in docs]}
 
 @app.route('/home')
@@ -143,7 +153,6 @@ def submit_feedback():
         return jsonify({'message': 'Feedback received'}), 200
     except Exception:
         return jsonify({'error': 'Failed to send feedback'}), 500
-mail = Mail(app)
 
 @app.route('/add_item', methods=['POST'])
 def add_item():
@@ -159,40 +168,32 @@ def add_item():
     image = request.files['image']
 
     try:
-        upload_result = cloudinary.uploader.upload(image)
-        image_url = upload_result['secure_url']
+        image_url = upload_to_gcs(image, image.filename, image.content_type)
     except Exception as e:
         return jsonify({"error": f"Image upload failed: {e}"}), 500
 
-    new_item = Item(
-        name=name,
-        description=description,
-        rent_price=rent_price,
-        buy_price=buy_price,
-        image_path=image_url,
-        owner_email=owner_email,
-        owner_number=owner_number
-    )
-    db.session.add(new_item)
-    db.session.commit()
+    # Save item in Firestore
+    item_data = {
+        "name": name,
+        "description": description,
+        "rent_price": rent_price,
+        "buy_price": buy_price,
+        "image_path": image_url,
+        "owner_email": owner_email,
+        "owner_number": owner_number
+    }
+
+    firestore_db.collection("items").add(item_data)
 
     return jsonify({"message": "Item added successfully!"})
 
 @app.route('/get_items', methods=['GET'])
 def get_items():
-    items = Item.query.all()
+    items = firestore_db.collection("items").stream()
     return jsonify({
         "items": [
-            {
-                "id": item.id,
-                "name": item.name,
-                "description": item.description,
-                "rent_price": item.rent_price,
-                "buy_price": item.buy_price,
-                "image_path": item.image_path,
-                "owner_email": item.owner_email,
-                "owner_number": item.owner_number
-            } for item in items
+            dict(item.to_dict(), id=item.id)
+            for item in items
         ]
     })
 
@@ -202,30 +203,21 @@ def get_user_items():
     if not email:
         return jsonify({"error": "Missing email"}), 400
 
-    user_items = Item.query.filter_by(owner_email=email).all()
+    items = firestore_db.collection("items").where("owner_email", "==", email).stream()
     return jsonify({
         "items": [
-            {
-                "id": item.id,
-                "name": item.name,
-                "description": item.description,
-                "rent_price": item.rent_price,
-                "buy_price": item.buy_price,
-                "image_path": item.image_path,
-                "owner_email": item.owner_email,
-                "owner_number": item.owner_number
-            } for item in user_items
+            dict(item.to_dict(), id=item.id)
+            for item in items
         ]
     })
 
-@app.route('/delete_item/<int:item_id>', methods=['DELETE'])
+@app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):
-    item = Item.query.get(item_id)
-    if not item:
+    doc_ref = firestore_db.collection("items").document(item_id)
+    if not doc_ref.get().exists:
         return jsonify({"error": "Item not found"}), 404
 
-    db.session.delete(item)
-    db.session.commit()
+    doc_ref.delete()
     return jsonify({"message": "Item deleted successfully!"})
 
 @app.route('/notify_seller', methods=['POST'])
@@ -257,7 +249,5 @@ def notify_seller():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Run server
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
-

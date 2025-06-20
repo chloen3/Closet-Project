@@ -1,7 +1,14 @@
 Flask==3.1.0
-firebase-admin==6.9.0
+Flask-Mail==0.9.1
 Flask-Session==0.8.0
-gunicorn==23.0.0
 Flask-Cors==5.0.0
 Flask-Dance==7.1.0
+
+firebase-admin==6.9.0
+gunicorn==23.0.0
+
+python-dotenv==1.0.1
+Werkzeug==3.0.1
+
+google-cloud-storage==2.16.0
 
