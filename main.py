@@ -36,6 +36,13 @@ mail = Mail(app)
 def index():
     return render_template('index.html')
 
+@app.route("/test_db")
+def test_db():
+    from firebase_admin import firestore
+    db = firestore.client()
+    docs = db.collection("users").stream()
+    return {"documents": [doc.id for doc in docs]}
+
 @app.route('/home')
 def shop():
     return render_template('home.html')
