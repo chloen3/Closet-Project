@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,27 @@ function AddItem() {
   const [isBuy, setIsBuy] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleFocusIn = e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        e.target.style.borderColor = '#FF69B4';
+        e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
+      }
+    };
+    const handleFocusOut = e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        e.target.style.borderColor = '#ccc';
+        e.target.style.boxShadow = 'none';
+      }
+    };
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+    };
+  }, []);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -65,42 +86,68 @@ function AddItem() {
             style={{ ...inputStyle, height: '100px', resize: 'none' }}
           />
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <label>
+          {isRent && (
+            <div style={checkboxRowStyle}>
+              <label style={checkboxLabelStyle}>
+                <input
+                  type="checkbox"
+                  checked={isRent}
+                  onChange={() => setIsRent(prev => !prev)}
+                  style={checkboxStyle}
+                />
+                Rent
+              </label>
+              <input
+                placeholder="Rent Price"
+                name="rent_price"
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+          )}
+
+          {!isRent && (
+            <label style={checkboxLabelStyle}>
               <input
                 type="checkbox"
                 checked={isRent}
                 onChange={() => setIsRent(prev => !prev)}
-                style={{ marginRight: '6px' }}
+                style={checkboxStyle}
               />
               Rent
             </label>
-            <label>
+          )}
+
+          {isBuy && (
+            <div style={checkboxRowStyle}>
+              <label style={checkboxLabelStyle}>
+                <input
+                  type="checkbox"
+                  checked={isBuy}
+                  onChange={() => setIsBuy(prev => !prev)}
+                  style={checkboxStyle}
+                />
+                Buy
+              </label>
+              <input
+                placeholder="Buy Price"
+                name="buy_price"
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+          )}
+
+          {!isBuy && (
+            <label style={checkboxLabelStyle}>
               <input
                 type="checkbox"
                 checked={isBuy}
                 onChange={() => setIsBuy(prev => !prev)}
-                style={{ marginRight: '6px' }}
+                style={checkboxStyle}
               />
               Buy
             </label>
-          </div>
-
-          {isRent && (
-            <input
-              placeholder="Rent Price"
-              name="rent_price"
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          )}
-          {isBuy && (
-            <input
-              placeholder="Buy Price"
-              name="buy_price"
-              onChange={handleChange}
-              style={inputStyle}
-            />
           )}
 
           <input
@@ -155,18 +202,26 @@ const inputStyle = {
   boxSizing: 'border-box'
 };
 
-document.addEventListener('focusin', (e) => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    e.target.style.borderColor = '#FF69B4';
-    e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
-  }
-});
-document.addEventListener('focusout', (e) => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    e.target.style.borderColor = '#ccc';
-    e.target.style.boxShadow = 'none';
-  }
-});
+const checkboxRowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  justifyContent: 'flex-start'
+};
+
+const checkboxLabelStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  fontSize: '1em',
+  fontWeight: '500',
+  cursor: 'pointer'
+};
+
+const checkboxStyle = {
+  accentColor: '#FF69B4',
+  cursor: 'pointer'
+};
 
 const buttonStyle = {
   padding: '12px',

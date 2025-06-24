@@ -103,7 +103,7 @@ const btnStyle = {
   right: '10px',
   background: 'transparent',
   border: 'none',
-  fontSize: '20px',
+  fontSize: '40px',
   cursor: 'pointer',
   color: '#FF69B4',
   transition: 'color 0.2s ease'
