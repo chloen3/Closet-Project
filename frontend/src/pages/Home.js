@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import '../Modal.css';
 
 function Home() {
   const [items, setItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     fetch('/get_items')
@@ -15,18 +20,12 @@ function Home() {
     <>
       <NavBar />
       <main style={{ padding: '150px 20px 50px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: '20px',
-          justifyContent: 'center',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
+        <div style={gridStyle}>
           {items.map(item => (
             <div
               key={item.id}
               style={cardStyle}
+              onClick={() => setSelectedItem(item)}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
@@ -39,12 +38,7 @@ function Home() {
               <img
                 src={item.image_path}
                 alt={item.name}
-                style={{
-                  width: '100%',
-                  height: '260px',
-                  objectFit: 'cover',
-                  borderRadius: '10px'
-                }}
+                style={imageStyle}
               />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
@@ -54,9 +48,37 @@ function Home() {
           ))}
         </div>
       </main>
+
+      {selectedItem && (
+        <div className="modal-backdrop" onClick={() => setSelectedItem(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-btn" onClick={() => setSelectedItem(null)}>×</button>
+            <Swiper spaceBetween={10} slidesPerView={1}>
+              {(selectedItem.image_paths || [selectedItem.image_path]).map((src, index) => (
+                <SwiperSlide key={index}>
+                  <img src={src} alt={`item-${index}`} className="modal-img" />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <h2>{selectedItem.name}</h2>
+            <p>{selectedItem.description}</p>
+            {selectedItem.rent_price && <p>Rent: ${selectedItem.rent_price}</p>}
+            {selectedItem.buy_price && <p>Buy: ${selectedItem.buy_price}</p>}
+          </div>
+        </div>
+      )}
     </>
   );
 }
+
+const gridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+  gap: '20px',
+  justifyContent: 'center',
+  maxWidth: '1200px',
+  margin: '0 auto'
+};
 
 const cardStyle = {
   borderRadius: '10px',
@@ -68,6 +90,13 @@ const cardStyle = {
   maxWidth: '220px',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   cursor: 'pointer'
+};
+
+const imageStyle = {
+  width: '100%',
+  height: '260px',
+  objectFit: 'cover',
+  borderRadius: '10px'
 };
 
 export default Home;
