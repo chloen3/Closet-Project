@@ -28,7 +28,7 @@ firestore_db = firestore.client()
 
 
 # Flask Init
-app = Flask(__name__, static_folder='static', template_folder='templates')
+app = Flask(__name__, static_folder='templates/static', template_folder='templates')
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
