@@ -32,11 +32,27 @@ function Account() {
       <main style={{ padding: '150px 20px' }}>
         <h2>Hello, {user.name || 'Guest'}!</h2>
         <h3>Your Posted Items:</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: '20px',
+          justifyContent: 'center',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {items.map(item => (
             <div key={item.id} style={cardStyle}>
               <button onClick={() => deleteItem(item.id)} style={btnStyle}>✖</button>
-              <img src={item.image_path} alt={item.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
+              <img
+                src={item.image_path}
+                alt={item.name}
+                style={{
+                  width: '100%',
+                  height: '260px',
+                  objectFit: 'cover',
+                  borderRadius: '10px'
+                }}
+              />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
               {item.rent_price && <p>Rent: ${item.rent_price}</p>}
@@ -50,19 +66,16 @@ function Account() {
 }
 
 const cardStyle = {
-    borderRadius: '12px',
-    padding: '10px',
-    background: '#fff',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    textAlign: 'center',
-    position: 'relative',
-    height: '350px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between'
-  };
-  
-  
+  borderRadius: '12px',
+  padding: '10px',
+  background: '#fff',
+  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+  textAlign: 'center',
+  position: 'relative',
+  width: '100%',
+  maxWidth: '220px',
+  margin: '0 auto'
+};
 
 const btnStyle = {
   position: 'absolute',

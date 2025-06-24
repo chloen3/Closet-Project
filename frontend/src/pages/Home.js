@@ -15,25 +15,22 @@ function Home() {
     <>
       <NavBar />
       <main style={{ padding: '150px 20px 50px' }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '20px',
-        justifyContent: 'center',
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: '20px',
+          justifyContent: 'center',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {items.map(item => (
             <div key={item.id} style={cardStyle}>
               <img
                 src={item.image_path}
                 alt={item.name}
-                style={{
-                    width: '100%',
-                    height: '260px',
-                    objectFit: 'cover',
-                    borderRadius: '10px'
-                }}
+                style={imageStyle}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
@@ -48,13 +45,22 @@ function Home() {
 }
 
 const cardStyle = {
-    borderRadius: '10px',
-    padding: '10px',
-    background: '#fff',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    textAlign: 'center',
-    width: '100%',
-    maxWidth: '220px'
-  };  
+  borderRadius: '10px',
+  padding: '10px',
+  background: '#fff',
+  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+  textAlign: 'center',
+  width: '100%',
+  maxWidth: '220px'
+};
+
+const imageStyle = {
+  width: '100%',
+  height: '260px',
+  objectFit: 'cover',
+  borderRadius: '10px',
+  transition: 'transform 0.3s ease',
+  cursor: 'pointer'
+};
 
 export default Home;

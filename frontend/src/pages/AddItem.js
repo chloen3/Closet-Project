@@ -43,25 +43,64 @@ function AddItem() {
   return (
     <>
       <NavBar />
-      <main style={{ padding: '150px 20px' }}>
-        <div style={{ maxWidth: '500px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <main style={containerStyle}>
+        <div style={formStyle}>
           <h2>Add New Item</h2>
-          <input placeholder="Item Name" name="name" onChange={handleChange} />
-          <textarea placeholder="Description" name="description" onChange={handleChange} />
-          <input placeholder="Rent Price" name="rent_price" onChange={handleChange} />
-          <input placeholder="Buy Price" name="buy_price" onChange={handleChange} />
-          <input type="file" accept="image/*" onChange={handleImage} />
-          <button onClick={submit} style={{ backgroundColor: '#000', color: '#fff', padding: '10px' }}>Submit</button>
+          <input
+            placeholder="Item Name"
+            name="name"
+            onChange={handleChange}
+            style={inputStyle}
+          />
+          <textarea
+            placeholder="Description"
+            name="description"
+            onChange={handleChange}
+            style={{ ...inputStyle, height: '100px', resize: 'none' }}
+          />
+          <input
+            placeholder="Rent Price"
+            name="rent_price"
+            onChange={handleChange}
+            style={inputStyle}
+          />
+          <input
+            placeholder="Buy Price"
+            name="buy_price"
+            onChange={handleChange}
+            style={inputStyle}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImage}
+            style={{ ...inputStyle, padding: '6px' }}
+          />
+          <button
+            onClick={submit}
+            style={buttonStyle}
+            onMouseEnter={e => e.target.style.backgroundColor = '#FF1493'}
+            onMouseLeave={e => e.target.style.backgroundColor = '#FF69B4'}
+          >
+            Submit
+          </button>
         </div>
       </main>
     </>
   );
 }
 
-const primaryColor = '#FF69B4';
+const containerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+  backgroundColor: '#fff',
+  paddingTop: '80px'
+};
 
 const formStyle = {
-  width: '320px',
+  width: '350px',
   padding: '30px',
   background: '#f9f9f9',
   borderRadius: '16px',
@@ -69,28 +108,42 @@ const formStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '12px',
-  textAlign: 'center',
-  margin: '0 auto'
+  textAlign: 'center'
 };
 
 const inputStyle = {
   padding: '12px',
   borderRadius: '8px',
   border: '1px solid #ccc',
-  fontSize: '1em'
+  fontSize: '1em',
+  outline: 'none',
+  transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+  boxSizing: 'border-box'
 };
+
+document.addEventListener('focusin', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    e.target.style.borderColor = '#FF69B4';
+    e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
+  }
+});
+document.addEventListener('focusout', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    e.target.style.borderColor = '#ccc';
+    e.target.style.boxShadow = 'none';
+  }
+});
 
 const buttonStyle = {
   padding: '12px',
   borderRadius: '8px',
   border: 'none',
-  backgroundColor: primaryColor,
+  backgroundColor: '#FF69B4',
   color: '#fff',
   fontWeight: 'bold',
   fontSize: '1em',
-  cursor: 'pointer'
+  cursor: 'pointer',
+  transition: 'background-color 0.3s ease'
 };
-
-  
 
 export default AddItem;
