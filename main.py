@@ -229,31 +229,37 @@ def delete_item(item_id):
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():
     data = request.get_json()
+
+    # Extract details from the incoming JSON
     buyer_name = data.get("buyer_name")
     buyer_email = data.get("buyer_email")
     item_name = data.get("item_name")
     seller_email = data.get("seller_email")
-    buyer_number = data.get("buyer_number")
 
-    if not (buyer_name and buyer_email and item_name and seller_email):
+    # Ensure all required info is present
+    if not all([buyer_name, buyer_email, item_name, seller_email]):
         return jsonify({"error": "Missing required information"}), 400
 
     try:
+        # Create and send the email
         msg = Message(
             subject="Interest in Your Item on Closet 1821",
             sender=app.config['MAIL_USERNAME'],
             recipients=[seller_email],
             body=(
                 f"Hello,\n\n"
-                f"{buyer_name} ({buyer_email}, Phone: {buyer_number}) is interested in '{item_name}'.\n\n"
-                f"You can text or call them to finalize the transaction.\n\n"
+                f"{buyer_name} ({buyer_email}) is interested in your item: '{item_name}'.\n\n"
+                f"You can reach out to them directly to finalize the transaction.\n\n"
+                f"(Your item has been taken off the site, please post it again once available)\n\n"
                 f"Best,\nCloset 1821"
             )
         )
         mail.send(msg)
         return jsonify({"message": "Notification email sent successfully!"}), 200
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Email send error: {e}")
+        return jsonify({"error": "Failed to send email"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
