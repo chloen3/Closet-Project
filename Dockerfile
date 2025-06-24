@@ -12,6 +12,13 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 ENV FIREBASE_KEY_PATH=/secrets/firebase-key/secrets
 ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/secrets
 
+# Build React
+WORKDIR /app/frontend
+RUN npm install && npm run build
+
+# Serve React from Flask
+COPY --from=builder /app/frontend/build /app/templates
+
 # Cloud Run uses port 8080
 EXPOSE 8080
 

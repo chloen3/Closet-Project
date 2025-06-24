@@ -14,7 +14,7 @@ if os.getenv("RENDER") is None:
     load_dotenv()
 
 # Firebase & Firestore Init
-firebase_key_path = os.getenv("FIREBASE_KEY_PATH")
+firebase_key_path = os.getenv("FIREBASE_KEY_PATH", "firebase-key.json")
 
 if not firebase_key_path or not os.path.exists(firebase_key_path):
     raise FileNotFoundError(f"FIREBASE_KEY_PATH is not set or file doesn't exist: {firebase_key_path}")
@@ -54,8 +54,10 @@ def upload_to_gcs(file_obj, filename, content_type):
     return blob.public_url
 
 @app.route('/')
-def index():
+@app.route('/<path:path>')
+def serve_react(path=None):
     return render_template('index.html')
+
 
 @app.route("/test_db")
 def test_db():
@@ -72,30 +74,6 @@ def test_storage():
     except Exception as e:
         return {"error": str(e)}, 500
 
-
-@app.route('/home')
-def shop():
-    return render_template('home.html')
-
-@app.route('/account')
-def account():
-    return render_template('account.html')
-
-@app.route('/add')
-def add():
-    return render_template('add.html')
-
-@app.route('/feedback')
-def feedback():
-    return render_template('feedback.html')
-
-@app.route('/login', methods=['GET'])
-def login_page():
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET'])
-def register_page():
-    return render_template('register.html')
 
 @app.route('/login', methods=['POST'])
 def handle_login():
