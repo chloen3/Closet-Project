@@ -1,15 +1,24 @@
-# Closet 1821  
-A web-based platform where users can list, rent, and buy clothing items. Users can post their own items, browse available listings, and notify sellers when they are interested in purchasing an item.  
+# 👚 Closet 1821
 
-## 🚀 Features  
-- **User Authentication**: Users log in with their Gmail and password.  
-- **List Items**: Users can add clothing items for sale or rent.  
-- **Browse Items**: View all available items with images, descriptions, and pricing.  
-- **Notify Seller**: Clicking "Notify Seller" sends an email to the seller.  
-- **Remove Purchased Items**: Once an item is purchased, it is automatically removed from the site.  
+Closet 1821 is a web app where users can post clothes for rent or sale. You can add items with pictures, browse listings, and message the seller if you're interested.
 
-## 🛠 Technologies Used  
-- **Frontend**: HTML, CSS, JavaScript  
-- **Backend**: Flask, Flask-SQLAlchemy, Flask-Mail, Cloudinary
-- **Database**: SQLite  
-- **Deployment**: Render  
+---
+
+## Features
+
+- Login and register with email + password
+- Add clothes with images, rent and/or buy prices
+- Browse items from other users
+- Click "Notify Seller" to email them directly
+- Users can delete their own items
+- All data and images are stored in the cloud
+
+---
+
+## Tech Stack
+
+- **Frontend**: React.js
+- **Backend**: Flask (Python)
+- **Database**: Firebase Firestore
+- **Image Storage**: Firebase Cloud Storage
+- **Deployment**: Google Cloud Run (Dockerized)

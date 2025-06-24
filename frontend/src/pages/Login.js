@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hovered, setHovered] = useState(false); // Define hover state
   const navigate = useNavigate();
 
   const login = async () => {
@@ -26,6 +27,18 @@ function Login() {
     }
   };
 
+  const buttonStyle = {
+    padding: '12px',
+    borderRadius: '8px',
+    border: 'none',
+    backgroundColor: hovered ? '#FF1493' : '#FF69B4',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: '1em',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease'
+  };
+
   return (
     <div style={containerStyle}>
       <div style={formStyle}>
@@ -44,13 +57,31 @@ function Login() {
           value={password}
           onChange={e => setPassword(e.target.value)}
         />
-        <button style={buttonStyle} onClick={login}>Log In</button>
-        <p>New here? <Link to="/register">Create an account</Link></p>
+        <button
+          style={buttonStyle}
+          onClick={login}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          Log In
+        </button>
+        <p>
+          New here?{' '}
+          <Link
+            to="/register"
+            style={{ color: '#FF69B4', textDecoration: 'none' }}
+            onMouseEnter={e => (e.target.style.color = '#FF1493')}
+            onMouseLeave={e => (e.target.style.color = '#FF69B4')}
+          >
+            Create an account
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
 
+// Leave the rest of the styles outside
 const containerStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -76,17 +107,6 @@ const inputStyle = {
   borderRadius: '8px',
   border: '1px solid #ccc',
   fontSize: '1em'
-};
-
-const buttonStyle = {
-  padding: '12px',
-  borderRadius: '8px',
-  border: 'none',
-  backgroundColor: '#FF69B4',
-  color: '#fff',
-  fontWeight: 'bold',
-  fontSize: '1em',
-  cursor: 'pointer'
 };
 
 export default Login;
