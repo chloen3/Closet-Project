@@ -32,7 +32,7 @@ function Account() {
       <main style={{ padding: '150px 20px' }}>
         <h2>Hello, {user.name || 'Guest'}!</h2>
         <h3>Your Posted Items:</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
           {items.map(item => (
             <div key={item.id} style={cardStyle}>
               <button onClick={() => deleteItem(item.id)} style={btnStyle}>✖</button>
@@ -50,13 +50,13 @@ function Account() {
 }
 
 const cardStyle = {
-  position: 'relative',
-  border: '1px solid #ddd',
-  padding: '15px',
-  borderRadius: '10px',
-  backgroundColor: '#fff',
-  boxShadow: '0px 4px 6px rgba(0,0,0,0.1)'
-};
+    borderRadius: '12px',
+    padding: '10px',
+    background: '#fff',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+    textAlign: 'center'
+  };
+  
 
 const btnStyle = {
   position: 'absolute',
