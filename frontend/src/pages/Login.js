@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import '../App.css'; // Make sure this is where your .styled-input CSS lives
 
 function Login() {
+  // set up state for email, password, hover
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [hovered, setHovered] = useState(false); // Define hover state
+  const [hovered, setHovered] = useState(false);
+
+  // allows navigating to another page
   const navigate = useNavigate();
 
   const login = async () => {
     if (!email || !password) return alert('Email and password required.');
 
     try {
+      // try to send a POST request
       const res = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,7 +23,9 @@ function Login() {
         body: JSON.stringify({ email, password }),
       });
 
+      // parse response
       const data = await res.json();
+      // if successful nav home
       if (data.message) navigate('/home');
       else alert(data.error || 'Login failed');
     } catch (err) {
@@ -39,19 +46,42 @@ function Login() {
     transition: 'background-color 0.3s ease'
   };
 
+  // center form in full page
+  const containerStyle = {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#fff'
+    };
+    
+    // style for the login form box
+  const formStyle = {
+        width: '320px',
+        padding: '30px',
+        background: '#f9f9f9',
+        borderRadius: '16px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        textAlign: 'center'
+  };
+
+  // JSX return, HTML rendering
   return (
     <div style={containerStyle}>
       <div style={formStyle}>
         <h2>Log In</h2>
         <input
-          style={inputStyle}
+          className="styled-input"
           placeholder="Email"
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
         <input
-          style={inputStyle}
+          className="styled-input"
           placeholder="Password"
           type="password"
           value={password}
@@ -80,33 +110,5 @@ function Login() {
     </div>
   );
 }
-
-// Leave the rest of the styles outside
-const containerStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100vh',
-  backgroundColor: '#fff'
-};
-
-const formStyle = {
-  width: '320px',
-  padding: '30px',
-  background: '#f9f9f9',
-  borderRadius: '16px',
-  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  textAlign: 'center'
-};
-
-const inputStyle = {
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #ccc',
-  fontSize: '1em'
-};
 
 export default Login;

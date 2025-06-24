@@ -39,5 +39,19 @@ body {
     font-size: 24px;
     cursor: pointer;
   }
+  .styled-input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+  }
+  
+  .styled-input:focus {
+    border-color: #FF69B4;
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.25);
+  }
+  
   
   
