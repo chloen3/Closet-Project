@@ -42,6 +42,19 @@ function Feedback() {
   );
 }
 
+document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      e.target.style.borderColor = '#FF69B4';
+      e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      e.target.style.borderColor = '#ccc';
+      e.target.style.boxShadow = 'none';
+    }
+  });
+
 const formStyle = {
   maxWidth: '600px',
   margin: '0 auto',

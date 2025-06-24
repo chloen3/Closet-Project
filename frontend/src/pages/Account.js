@@ -41,8 +41,26 @@ function Account() {
           margin: '0 auto'
         }}>
           {items.map(item => (
-            <div key={item.id} style={cardStyle}>
-              <button onClick={() => deleteItem(item.id)} style={btnStyle}>✖</button>
+            <div
+              key={item.id}
+              style={cardStyle}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+              }}
+            >
+              <button
+                onClick={() => deleteItem(item.id)}
+                style={btnStyle}
+                onMouseEnter={e => e.currentTarget.style.color = '#FF1493'}
+                onMouseLeave={e => e.currentTarget.style.color = '#FF69B4'}
+              >
+                ✖
+              </button>
               <img
                 src={item.image_path}
                 alt={item.name}
@@ -74,7 +92,9 @@ const cardStyle = {
   position: 'relative',
   width: '100%',
   maxWidth: '220px',
-  margin: '0 auto'
+  margin: '0 auto',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  cursor: 'pointer'
 };
 
 const btnStyle = {
@@ -85,7 +105,8 @@ const btnStyle = {
   border: 'none',
   fontSize: '20px',
   cursor: 'pointer',
-  color: '#FF69B4'
+  color: '#FF69B4',
+  transition: 'color 0.2s ease'
 };
 
 export default Account;

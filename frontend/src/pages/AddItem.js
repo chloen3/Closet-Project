@@ -11,6 +11,9 @@ function AddItem() {
     image: null
   });
 
+  const [isRent, setIsRent] = useState(false);
+  const [isBuy, setIsBuy] = useState(false);
+
   const navigate = useNavigate();
 
   const handleChange = e => {
@@ -24,6 +27,9 @@ function AddItem() {
 
   const submit = () => {
     if (!form.name || !form.image) return alert('Name and image are required.');
+    if (isRent && !form.rent_price) return alert('Please enter a rent price.');
+    if (isBuy && !form.buy_price) return alert('Please enter a buy price.');
+
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => data.append(key, value));
 
@@ -53,29 +59,57 @@ function AddItem() {
             style={inputStyle}
           />
           <textarea
-            placeholder="Description"
+            placeholder="Description (size, brand, etc.)"
             name="description"
             onChange={handleChange}
             style={{ ...inputStyle, height: '100px', resize: 'none' }}
           />
-          <input
-            placeholder="Rent Price"
-            name="rent_price"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-          <input
-            placeholder="Buy Price"
-            name="buy_price"
-            onChange={handleChange}
-            style={inputStyle}
-          />
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={isRent}
+                onChange={() => setIsRent(prev => !prev)}
+                style={{ marginRight: '6px' }}
+              />
+              Rent
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={isBuy}
+                onChange={() => setIsBuy(prev => !prev)}
+                style={{ marginRight: '6px' }}
+              />
+              Buy
+            </label>
+          </div>
+
+          {isRent && (
+            <input
+              placeholder="Rent Price"
+              name="rent_price"
+              onChange={handleChange}
+              style={inputStyle}
+            />
+          )}
+          {isBuy && (
+            <input
+              placeholder="Buy Price"
+              name="buy_price"
+              onChange={handleChange}
+              style={inputStyle}
+            />
+          )}
+
           <input
             type="file"
             accept="image/*"
             onChange={handleImage}
             style={{ ...inputStyle, padding: '6px' }}
           />
+
           <button
             onClick={submit}
             style={buttonStyle}
@@ -93,10 +127,10 @@ function AddItem() {
 const containerStyle = {
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center',
-  height: '100vh',
-  backgroundColor: '#fff',
-  paddingTop: '80px'
+  alignItems: 'flex-start',
+  minHeight: '100vh',
+  paddingTop: '120px',
+  backgroundColor: '#fff'
 };
 
 const formStyle = {

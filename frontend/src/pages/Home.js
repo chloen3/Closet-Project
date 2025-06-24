@@ -24,13 +24,27 @@ function Home() {
           margin: '0 auto'
         }}>
           {items.map(item => (
-            <div key={item.id} style={cardStyle}>
+            <div
+              key={item.id}
+              style={cardStyle}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+              }}
+            >
               <img
                 src={item.image_path}
                 alt={item.name}
-                style={imageStyle}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                style={{
+                  width: '100%',
+                  height: '260px',
+                  objectFit: 'cover',
+                  borderRadius: '10px'
+                }}
               />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
@@ -51,15 +65,8 @@ const cardStyle = {
   boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   textAlign: 'center',
   width: '100%',
-  maxWidth: '220px'
-};
-
-const imageStyle = {
-  width: '100%',
-  height: '260px',
-  objectFit: 'cover',
-  borderRadius: '10px',
-  transition: 'transform 0.3s ease',
+  maxWidth: '220px',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   cursor: 'pointer'
 };
 
