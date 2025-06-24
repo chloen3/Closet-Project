@@ -1,4 +1,4 @@
-# === Stage 1: React Build ===
+# === Stage 1: Build React Frontend ===
 FROM node:20-alpine as frontend
 
 WORKDIR /app/frontend
@@ -7,20 +7,26 @@ RUN npm install
 COPY frontend/ ./
 RUN npm run build
 
-# === Stage 2: Flask Backend ===
+# === Stage 2: Build Flask Backend ===
 FROM python:3.11-slim
 
+# Set env vars for Firebase and Google Cloud credentials
+ENV FIREBASE_KEY_PATH=/secrets/firebase-key/secrets
+ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/secrets
+
+# Set working dir and install dependencies
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy backend files
+# Copy backend code
 COPY . /app
 
-# Copy built React app into Flask templates
+# Copy React build output into Flask's templates folder
 COPY --from=frontend /app/frontend/build /app/templates
 
-ENV FIREBASE_KEY_PATH=/secrets/firebase-key/secrets
-ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/secrets
+# Expose Flask port
+EXPOSE 8080
 
+# Start Flask using gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app"]
