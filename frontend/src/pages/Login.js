@@ -82,7 +82,7 @@ const buttonStyle = {
   padding: '12px',
   borderRadius: '8px',
   border: 'none',
-  backgroundColor: '#000',
+  backgroundColor: '#FF69B4',
   color: '#fff',
   fontWeight: 'bold',
   fontSize: '1em',

@@ -58,17 +58,39 @@ function AddItem() {
   );
 }
 
+const primaryColor = '#FF69B4';
+
 const formStyle = {
-    background: '#fff',
-    borderRadius: '16px',
-    padding: '30px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-    maxWidth: '500px',
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  };
+  width: '320px',
+  padding: '30px',
+  background: '#f9f9f9',
+  borderRadius: '16px',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  textAlign: 'center',
+  margin: '0 auto'
+};
+
+const inputStyle = {
+  padding: '12px',
+  borderRadius: '8px',
+  border: '1px solid #ccc',
+  fontSize: '1em'
+};
+
+const buttonStyle = {
+  padding: '12px',
+  borderRadius: '8px',
+  border: 'none',
+  backgroundColor: primaryColor,
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: '1em',
+  cursor: 'pointer'
+};
+
   
 
 export default AddItem;
