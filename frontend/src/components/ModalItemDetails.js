@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 function ModalItemDetail({ item, onClose }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // you can call setUser later to update user state (initially null)
 
   // fetch user from the cloud (via /me) on mount
   useEffect(() => {
