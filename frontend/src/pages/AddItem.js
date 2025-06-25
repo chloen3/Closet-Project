@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,52 +7,32 @@ function AddItem() {
     name: '',
     description: '',
     rent_price: '',
-    buy_price: '',
-    image: null
+    buy_price: ''
   });
 
   const [isRent, setIsRent] = useState(false);
   const [isBuy, setIsBuy] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleFocusIn = e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        e.target.style.borderColor = '#FF69B4';
-        e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
-      }
-    };
-    const handleFocusOut = e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        e.target.style.borderColor = '#ccc';
-        e.target.style.boxShadow = 'none';
-      }
-    };
-    document.addEventListener('focusin', handleFocusIn);
-    document.addEventListener('focusout', handleFocusOut);
-    return () => {
-      document.removeEventListener('focusin', handleFocusIn);
-      document.removeEventListener('focusout', handleFocusOut);
-    };
-  }, []);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImage = e => {
-    setForm(prev => ({ ...prev, image: e.target.files[0] }));
+  const handleImageChange = (e) => {
+    setSelectedImages(Array.from(e.target.files));
   };
 
   const submit = () => {
-    if (!form.name || !form.image) return alert('Name and image are required.');
+    if (!form.name || selectedImages.length === 0) return alert('Name and image are required.');
     if (isRent && !form.rent_price) return alert('Please enter a rent price.');
     if (isBuy && !form.buy_price) return alert('Please enter a buy price.');
 
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => data.append(key, value));
+    selectedImages.forEach(img => data.append('images', img));
 
     fetch('/add_item', {
       method: 'POST',
@@ -105,7 +85,6 @@ function AddItem() {
               />
             </div>
           )}
-
           {!isRent && (
             <label style={checkboxLabelStyle}>
               <input
@@ -137,7 +116,6 @@ function AddItem() {
               />
             </div>
           )}
-
           {!isBuy && (
             <label style={checkboxLabelStyle}>
               <input
@@ -153,7 +131,8 @@ function AddItem() {
           <input
             type="file"
             accept="image/*"
-            onChange={handleImage}
+            multiple
+            onChange={handleImageChange}
             style={{ ...inputStyle, padding: '6px' }}
           />
 
