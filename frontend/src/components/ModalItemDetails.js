@@ -4,6 +4,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import 'swiper/swiper-bundle.css';
 
 function ModalItemDetail({ item, onClose }) {
   const [user, setUser] = useState(null);
@@ -64,18 +65,21 @@ function ModalItemDetail({ item, onClose }) {
       <button
         onClick={onClose}
         style={{
-          fontSize: '40px',
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
+          fontSize: '2rem',
+          lineHeight: '1',
+          width: '40px',
+          height: '40px',
           background: 'transparent',
           border: 'none',
           color: '#FF69B4',
           cursor: 'pointer',
-          transition: 'color 0.2s ease'
-        }}
-        onMouseEnter={e => (e.target.style.color = '#FF1493')}
-        onMouseLeave={e => (e.target.style.color = '#FF69B4')}
+          position: 'absolute',
+          top: '15px',
+          right: '15px',
+          zIndex: 1100
+        }}        
+        onMouseEnter={e => (e.currentTarget.style.color = '#FF1493')}
+        onMouseLeave={e => (e.currentTarget.style.color = '#FF69B4')}
       >
         ✖
       </button>

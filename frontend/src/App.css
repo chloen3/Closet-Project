@@ -62,7 +62,7 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.25);
   }
   .swiper-button-next,
-    .swiper-button-prev {
+  .swiper-button-prev {
     color: white;
     background-color: #FF69B4;
     width: 40px;
@@ -72,22 +72,21 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 1100;
-    transition: background-color 0.3s ease;
     opacity: 1 !important;
     visibility: visible !important;
-    }
+  }
 
-    .swiper-button-next:hover,
-    .swiper-button-prev:hover {
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
     background-color: #FF1493;
-    }
+  }
 
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
     font-size: 18px;
     color: white;
     display: block;
-    }
+  }
 
   
   
