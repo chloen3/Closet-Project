@@ -160,16 +160,18 @@ const containerStyle = {
 };
 
 const formStyle = {
-  width: '350px',
-  padding: '30px',
-  background: '#f9f9f9',
-  borderRadius: '16px',
-  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  textAlign: 'center'
-};
+    fontFamily: 'Arial, sans-serif',
+    width: '350px',
+    padding: '30px',
+    background: '#f9f9f9',
+    borderRadius: '16px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    textAlign: 'center'
+  };
+  
 
 const inputStyle = {
   padding: '12px',
