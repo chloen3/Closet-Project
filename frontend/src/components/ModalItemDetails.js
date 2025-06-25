@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/bundle';
 
 function ModalItemDetail({ item, onClose }) {
   const [user, setUser] = useState(null);
@@ -85,36 +85,36 @@ function ModalItemDetail({ item, onClose }) {
       </button>
 
 
-        <Swiper
-          spaceBetween={10}
-          slidesPerView={1}
-          navigation
-          pagination={{ clickable: true }}
-          modules={[Navigation, Pagination]}
-          style={{
-            borderRadius: '10px',
-            marginBottom: '15px',
-            maxHeight: '70vh',
-            width: '100%',
-            position: 'relative'
-          }}
-        >
+      <Swiper
+        spaceBetween={10}
+        slidesPerView={1}
+        navigation
+        pagination={{ clickable: true }}
+        modules={[Navigation, Pagination]}
+        style={{
+          position: 'relative',
+          borderRadius: '10px',
+          marginBottom: '15px',
+          width: '100%',
+          maxHeight: '70vh',
+        }}
+      >
+        {imageList.map((src, index) => (
+          <SwiperSlide key={index}>
+            <img
+              src={src}
+              alt={`item-${index}`}
+              style={{
+                width: '100%',
+                maxHeight: '70vh',
+                objectFit: 'contain',
+                borderRadius: '10px'
+              }}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
-          {imageList.map((src, index) => (
-            <SwiperSlide key={index}>
-              <img
-                src={src}
-                alt={`item-${index}`}
-                style={{
-                  width: '100%',
-                  maxHeight: '70vh',
-                  objectFit: 'contain',
-                  borderRadius: '10px'
-                }}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
 
         <h2>{item.name}</h2>
         <p>{item.description}</p>

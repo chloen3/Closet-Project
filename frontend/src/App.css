@@ -74,6 +74,9 @@ body {
     z-index: 1100;
     opacity: 1 !important;
     visibility: visible !important;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .swiper-button-next:hover,

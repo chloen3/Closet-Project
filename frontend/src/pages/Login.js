@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../App.css'; // Make sure this is where your .styled-input CSS lives
+import '../App.css'; 
 
 function Login() {
   // set up state for email, password, hover
