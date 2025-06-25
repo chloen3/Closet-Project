@@ -56,7 +56,17 @@ function Home() {
             <Swiper spaceBetween={10} slidesPerView={1}>
               {(selectedItem.image_paths || [selectedItem.image_path]).map((src, index) => (
                 <SwiperSlide key={index}>
-                  <img src={src} alt={`item-${index}`} className="modal-img" />
+                  <img
+                    src={src}
+                    alt={`item-${index}`}
+                    className="modal-img"
+                    style={{
+                      width: '100%',
+                      maxHeight: '70vh',
+                      objectFit: 'contain',
+                      borderRadius: '10px'
+                    }}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -64,6 +74,54 @@ function Home() {
             <p>{selectedItem.description}</p>
             {selectedItem.rent_price && <p>Rent: ${selectedItem.rent_price}</p>}
             {selectedItem.buy_price && <p>Buy: ${selectedItem.buy_price}</p>}
+
+            <button
+              onClick={async () => {
+                const res = await fetch('/me', { credentials: 'include' });
+                const user = await res.json();
+
+                if (!user.email || !user.name) {
+                  alert('Please log in to contact the seller.');
+                  return;
+                }
+
+                const response = await fetch('/notify_seller', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    buyer_name: user.name,
+                    buyer_email: user.email,
+                    item_name: selectedItem.name,
+                    seller_email: selectedItem.owner_email
+                  })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                  alert('Seller has been notified!');
+                  setSelectedItem(null);
+                } else {
+                  alert(data.error || 'Failed to notify seller.');
+                }
+              }}
+              style={{
+                padding: '12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: '#FF69B4',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: '1em',
+                cursor: 'pointer',
+                marginTop: '15px',
+                transition: 'background-color 0.3s ease'
+              }}
+              onMouseEnter={e => (e.target.style.backgroundColor = '#FF1493')}
+              onMouseLeave={e => (e.target.style.backgroundColor = '#FF69B4')}
+            >
+              Notify Seller
+            </button>
           </div>
         </div>
       )}

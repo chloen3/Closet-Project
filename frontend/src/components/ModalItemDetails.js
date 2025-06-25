@@ -66,10 +66,11 @@ function ModalItemDetail({ item, onClose }) {
               alt={`item ${idx}`}
               style={{
                 width: '100%',
+                maxHeight: '70vh',
+                objectFit: 'contain',
                 borderRadius: '10px',
-                marginBottom: '10px',
-                objectFit: 'cover'
-              }}
+                marginBottom: '10px'
+              }}              
             />
           ))}
         </div>
