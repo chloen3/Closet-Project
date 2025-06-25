@@ -89,9 +89,11 @@ function ModalItemDetail({ item, onClose }) {
             borderRadius: '10px',
             marginBottom: '15px',
             maxHeight: '70vh',
-            width: '100%'
+            width: '100%',
+            position: 'relative'
           }}
         >
+
           {imageList.map((src, index) => (
             <SwiperSlide key={index}>
               <img

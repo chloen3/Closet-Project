@@ -5,7 +5,7 @@
     height: 100%;
     width: 100%;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
+    z-index: 1050;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,9 +47,35 @@
   }
 
   .swiper-button-next,
-    .swiper-button-prev {
-    color: #FF69B4; /* match your brand pink */
+  .swiper-button-prev {
+    color: white;
+    background-color: #FF69B4;
     font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    transition: background-color 0.3s ease;
     }
 
-  
+    .swiper-button-next:hover,
+    .swiper-button-prev:hover {
+    background-color: #FF1493;
+    }
+
+
+    .modal-item-detail {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 600px;
+        width: 90%;
+        position: relative;
+        overflow-y: auto;
+        max-height: 90vh;
+        text-align: center;
+      }
+      

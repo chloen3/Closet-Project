@@ -9,6 +9,7 @@ function Register() {
     const { name, email, password } = form;
     if (!name || !email || !password) return alert('All fields required.');
 
+    // API call to flask
     const res = await fetch('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -21,6 +22,7 @@ function Register() {
     else alert(data.error || 'Registration failed');
   };
 
+  // JSX return, HTML rednering
   return (
     <div style={containerStyle}>
       <div style={formStyle}>
@@ -35,6 +37,7 @@ function Register() {
   );
 }
 
+// CSS styling
 const containerStyle = {
   display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fff'
 };
