@@ -52,7 +52,6 @@ function Home() {
       {selectedItem && (
         <div className="modal-backdrop" onClick={() => setSelectedItem(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedItem(null)}>×</button>
 
             <Swiper
               spaceBetween={10}

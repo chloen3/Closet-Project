@@ -75,7 +75,7 @@ const containerStyle = {
   justifyContent: 'center',
   alignItems: 'flex-start',
   minHeight: '100vh',
-  paddingTop: '150px',
+  paddingTop: '190px',
   backgroundColor: '#fff'
 };
 
@@ -87,7 +87,7 @@ const formStyle = {
   flexDirection: 'column',
   gap: '20px',
   backgroundColor: '#fff',
-  padding: '60px',
+  padding: '40px',
   borderRadius: '15px',
   boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
   textAlign: 'center'
