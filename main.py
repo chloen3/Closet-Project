@@ -249,8 +249,8 @@ def notify_seller():
             body=(
                 f"Hello,\n\n"
                 f"{buyer_name} ({buyer_email}) is interested in your item: '{item_name}'.\n\n"
-                f"You can reach out to them directly to finalize the transaction.\n\n"
-                f"(Your item has been taken off the site, please post it again once available)\n\n"
+                f"You can reach out to them directly to finalize the transaction."
+                f"Once finalized, please remove your posting from the site.\n\n"
                 f"Best,\nCloset 1821"
             )
         )

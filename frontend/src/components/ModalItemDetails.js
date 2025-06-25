@@ -104,4 +104,6 @@ function ModalItemDetail({ item, onClose }) {
   );
 }
 
+
+
 export default ModalItemDetail;
