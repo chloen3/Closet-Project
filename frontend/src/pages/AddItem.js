@@ -155,14 +155,14 @@ const containerStyle = {
   justifyContent: 'center',
   alignItems: 'flex-start',
   minHeight: '100vh',
-  paddingTop: '120px',
+  paddingTop: '150px',
   backgroundColor: '#fff'
 };
 
 const formStyle = {
     fontFamily: 'Arial, sans-serif',
     width: '350px',
-    padding: '30px',
+    padding: '60px',
     background: '#f9f9f9',
     borderRadius: '16px',
     boxShadow: '0 8px 24px rgba(0,0,0,0.1)',

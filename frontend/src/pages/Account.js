@@ -30,8 +30,10 @@ function Account() {
     <>
       <NavBar />
       <main style={{ padding: '150px 20px' }}>
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
         <h2>Hello, {user.name || 'Guest'}!</h2>
         <h3>Your Posted Items:</h3>
+        </div>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',

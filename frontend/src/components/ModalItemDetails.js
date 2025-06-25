@@ -61,23 +61,25 @@ function ModalItemDetail({ item, onClose }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-item-detail" onClick={e => e.stopPropagation()}>
-        <button
-          className="modal-close-btn"
-          onClick={onClose}
-          style={{
-            fontSize: '2em',
-            color: '#FF69B4',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            position: 'absolute',
-            top: '10px',
-            right: '20px',
-            zIndex: 10
-          }}
-        >
-          ×
-        </button>
+      <button
+        onClick={onClose}
+        style={{
+          fontSize: '40px',
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'transparent',
+          border: 'none',
+          color: '#FF69B4',
+          cursor: 'pointer',
+          transition: 'color 0.2s ease'
+        }}
+        onMouseEnter={e => (e.target.style.color = '#FF1493')}
+        onMouseLeave={e => (e.target.style.color = '#FF69B4')}
+      >
+        ✖
+      </button>
+
 
         <Swiper
           spaceBetween={10}
