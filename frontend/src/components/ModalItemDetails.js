@@ -58,6 +58,9 @@ function ModalItemDetail({ item, onClose }) {
   };
 
   const imageList = item.image_paths?.length ? item.image_paths : [item.image_path];
+  console.log('item:', item);
+  console.log('imageList:', imageList);
+
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
