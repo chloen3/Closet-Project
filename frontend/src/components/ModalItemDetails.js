@@ -4,7 +4,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/swiper-bundle.css';
+import 'swiper/css/bundle';
 
 function ModalItemDetail({ item, onClose }) {
   const [user, setUser] = useState(null);
