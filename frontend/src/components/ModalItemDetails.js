@@ -91,9 +91,9 @@ function ModalItemDetail({ item, onClose }) {
       <Swiper
         spaceBetween={10}
         slidesPerView={1}
-        navigation
-        pagination={{ clickable: true }}
         modules={[Navigation, Pagination]}
+        navigation={{ enabled: true }}
+        pagination={{ clickable: true }}
         style={{
           position: 'relative',
           borderRadius: '10px',
