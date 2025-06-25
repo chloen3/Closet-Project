@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 function ModalItemDetail({ item, onClose }) {
-  const [user, setUser] = useState(null); // you can call setUser later to update user state (initially null)
+  const [user, setUser] = useState(null);
 
-  // fetch user from the cloud (via /me) on mount
   useEffect(() => {
     fetch('/me', {
       method: 'GET',
@@ -17,7 +21,6 @@ function ModalItemDetail({ item, onClose }) {
       });
   }, []);
 
-  // No item = don't render
   if (!item) return null;
 
   const notifySeller = async () => {
@@ -56,24 +59,47 @@ function ModalItemDetail({ item, onClose }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>×</button>
+        <button
+          className="close-btn"
+          onClick={onClose}
+          style={{
+            fontSize: '2em',
+            color: '#FF69B4',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            position: 'absolute',
+            top: '10px',
+            right: '20px',
+            zIndex: 10
+          }}
+        >
+          ×
+        </button>
 
-        <div className="carousel">
-          {item.photos?.map((photo, idx) => (
-            <img
-              key={idx}
-              src={photo}
-              alt={`item ${idx}`}
-              style={{
-                width: '100%',
-                maxHeight: '70vh',
-                objectFit: 'contain',
-                borderRadius: '10px',
-                marginBottom: '10px'
-              }}              
-            />
+        <Swiper
+          spaceBetween={10}
+          slidesPerView={1}
+          navigation
+          pagination={{ clickable: true }}
+          modules={[Navigation, Pagination]}
+          style={{ borderRadius: '10px', marginBottom: '15px', maxHeight: '70vh' }}
+        >
+          {(item.image_paths || [item.image_path]).map((src, index) => (
+            <SwiperSlide key={index}>
+              <img
+                src={src}
+                alt={`item-${index}`}
+                style={{
+                  width: '100%',
+                  maxHeight: '70vh',
+                  objectFit: 'contain',
+                  borderRadius: '10px'
+                }}
+              />
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
 
         <h2>{item.name}</h2>
         <p>{item.description}</p>
@@ -103,7 +129,5 @@ function ModalItemDetail({ item, onClose }) {
     </div>
   );
 }
-
-
 
 export default ModalItemDetail;
