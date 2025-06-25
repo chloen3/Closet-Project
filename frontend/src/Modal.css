@@ -45,4 +45,11 @@
     margin-bottom: 10px;
     object-fit: cover;
   }
+
+  .swiper-button-next,
+    .swiper-button-prev {
+    color: #FF69B4; /* match your brand pink */
+    font-size: 1.5em;
+    }
+
   
