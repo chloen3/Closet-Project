@@ -56,11 +56,13 @@ function ModalItemDetail({ item, onClose }) {
     }
   };
 
+  const imageList = item.image_paths?.length ? item.image_paths : [item.image_path];
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
+      <div className="modal-item-detail" onClick={e => e.stopPropagation()}>
         <button
-          className="close-btn"
+          className="modal-close-btn"
           onClick={onClose}
           style={{
             fontSize: '2em',
@@ -80,12 +82,17 @@ function ModalItemDetail({ item, onClose }) {
         <Swiper
           spaceBetween={10}
           slidesPerView={1}
-          navigation={true}
+          navigation
           pagination={{ clickable: true }}
           modules={[Navigation, Pagination]}
-          style={{ borderRadius: '10px', marginBottom: '15px', maxHeight: '70vh' }}
+          style={{
+            borderRadius: '10px',
+            marginBottom: '15px',
+            maxHeight: '70vh',
+            width: '100%'
+          }}
         >
-          {(item.image_paths || [item.image_path]).map((src, index) => (
+          {imageList.map((src, index) => (
             <SwiperSlide key={index}>
               <img
                 src={src}
