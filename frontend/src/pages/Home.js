@@ -3,7 +3,6 @@ import NavBar from '../components/NavBar';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import '../Modal.css';
 
 function Home() {
   const [items, setItems] = useState([]);
