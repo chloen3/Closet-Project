@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -52,13 +53,24 @@ function Home() {
         <div className="modal-backdrop" onClick={() => setSelectedItem(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedItem(null)}>×</button>
-            <Swiper spaceBetween={10} slidesPerView={1}>
+
+            <Swiper
+              spaceBetween={10}
+              slidesPerView={1}
+              navigation
+              modules={[Navigation]}
+              style={{
+                marginBottom: '15px',
+                borderRadius: '10px',
+                maxHeight: '70vh',
+                width: '100%',
+              }}
+            >
               {(selectedItem.image_paths || [selectedItem.image_path]).map((src, index) => (
                 <SwiperSlide key={index}>
                   <img
                     src={src}
                     alt={`item-${index}`}
-                    className="modal-img"
                     style={{
                       width: '100%',
                       maxHeight: '70vh',
@@ -69,6 +81,7 @@ function Home() {
                 </SwiperSlide>
               ))}
             </Swiper>
+
             <h2>{selectedItem.name}</h2>
             <p>{selectedItem.description}</p>
             {selectedItem.rent_price && <p>Rent: ${selectedItem.rent_price}</p>}
