@@ -150,7 +150,7 @@ function Home() {
 const gridStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, 1fr)',
-  gap: '20px',
+  gap: '10px',
   justifyContent: 'center',
   maxWidth: '1200px',
   margin: '0 auto'
