@@ -4,6 +4,7 @@ import NavBar from '../components/NavBar';
 function Account() {
   const [user, setUser] = useState({});
   const [items, setItems] = useState([]);
+  const [hoveredCardId, setHoveredCardId] = useState(null); // 👈 for image hover tracking
 
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
@@ -30,13 +31,13 @@ function Account() {
     <>
       <NavBar />
       <main style={{ padding: '150px 20px' }}>
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <h2>Hello, {user.name || 'Guest'}!</h2>
-        <h3>Your Posted Items:</h3>
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <h2>Hello, {user.name || 'Guest'}!</h2>
+          <h3>Your Posted Items:</h3>
         </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '20px',
           justifyContent: 'center',
           maxWidth: '1200px',
@@ -46,14 +47,8 @@ function Account() {
             <div
               key={item.id}
               style={cardStyle}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-              }}
+              onMouseEnter={() => setHoveredCardId(item.id)}
+              onMouseLeave={() => setHoveredCardId(null)}
             >
               <button
                 onClick={() => deleteItem(item.id)}
@@ -64,7 +59,11 @@ function Account() {
                 ✖
               </button>
               <img
-                src={item.image_path}
+                src={
+                  hoveredCardId === item.id && item.image_paths?.[1]
+                    ? item.image_paths[1]
+                    : item.image_path
+                }
                 alt={item.name}
                 style={{
                   width: '100%',

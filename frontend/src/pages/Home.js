@@ -8,6 +8,7 @@ import 'swiper/css/navigation';
 function Home() {
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [hoveredCardId, setHoveredCardId] = useState(null);
 
   useEffect(() => {
     fetch('/get_items')
@@ -36,9 +37,15 @@ function Home() {
               }}
             >
               <img
-                src={item.image_path}
+                src={
+                  hoveredCardId === item.id && item.image_paths?.[1]
+                    ? item.image_paths[1]
+                    : item.image_path
+                }
                 alt={item.name}
                 style={imageStyle}
+                onMouseEnter={() => setHoveredCardId(item.id)}
+                onMouseLeave={() => setHoveredCardId(null)}
               />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
@@ -52,11 +59,11 @@ function Home() {
       {selectedItem && (
         <div className="modal-backdrop" onClick={() => setSelectedItem(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-
             <Swiper
               spaceBetween={10}
               slidesPerView={1}
               navigation
+              loop={true}
               modules={[Navigation]}
               style={{
                 marginBottom: '15px',
@@ -142,7 +149,7 @@ function Home() {
 
 const gridStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+  gridTemplateColumns: 'repeat(4, 1fr)',
   gap: '20px',
   justifyContent: 'center',
   maxWidth: '1200px',
