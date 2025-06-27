@@ -25,16 +25,16 @@ function Home() {
           {items.map(item => (
             <div
               key={item.id}
-              style={cardStyle}
+              style={{
+                ...cardStyle,
+                transform: hoveredCardId === item.id ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: hoveredCardId === item.id
+                  ? '0 6px 12px rgba(0,0,0,0.15)'
+                  : '0 4px 8px rgba(0,0,0,0.1)'
+              }}
               onClick={() => setSelectedItem(item)}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-              }}
+              onMouseEnter={() => setHoveredCardId(item.id)}
+              onMouseLeave={() => setHoveredCardId(null)}
             >
               <img
                 src={
@@ -44,8 +44,6 @@ function Home() {
                 }
                 alt={item.name}
                 style={imageStyle}
-                onMouseEnter={() => setHoveredCardId(item.id)}
-                onMouseLeave={() => setHoveredCardId(null)}
               />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
@@ -160,7 +158,6 @@ const cardStyle = {
   borderRadius: '10px',
   padding: '10px',
   background: '#fff',
-  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   textAlign: 'center',
   width: '100%',
   maxWidth: '220px',
@@ -172,7 +169,10 @@ const imageStyle = {
   width: '100%',
   height: '260px',
   objectFit: 'cover',
-  borderRadius: '10px'
+  borderRadius: '10px',
+  transition: 'transform 0.4s ease, opacity 0.4s ease',
+  transform: 'scale(1)',
+  boxShadow: 'none'
 };
 
 export default Home;
