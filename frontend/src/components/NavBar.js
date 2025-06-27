@@ -1,9 +1,21 @@
 import { Link } from 'react-router-dom';
 
+import { Link } from 'react-router-dom';
+
 function NavBar() {
   return (
     <>
-      <header style={headerStyle}>Closet 1821</header>
+      <header style={headerStyle}>
+        <div style={headerInnerStyle}>
+          <img
+            src="/closet-logo.png"
+            alt="Closet 1821 Logo"
+            style={logoStyle}
+          />
+          <Link to="/home" style={titleLinkStyle}>Closet 1821</Link>
+        </div>
+      </header>
+
       <nav style={navStyle}>
         <Link to="/home" style={linkStyle}>Shop</Link>
         <Link to="/add" style={linkStyle}>Add Items</Link>
@@ -13,6 +25,18 @@ function NavBar() {
     </>
   );
 }
+const logoStyle = {
+  height: '50px',
+  marginRight: '12px',
+};
+
+const headerInnerStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '10px',
+};
+
 
 const headerStyle = {
   backgroundColor: '#000',
