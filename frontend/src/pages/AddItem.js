@@ -2,18 +2,20 @@ import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
-function AddItem() {
+export default function AddItem() {
   const [form, setForm] = useState({
     name: '',
     description: '',
     rent_price: '',
-    buy_price: '',
-    category: ''
+    buy_price: ''
   });
-
   const [isRent, setIsRent] = useState(false);
   const [isBuy, setIsBuy] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
+
+  const [labelOptions, setLabelOptions] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [otherCategory, setOtherCategory] = useState('');
 
   const navigate = useNavigate();
 
@@ -22,11 +24,27 @@ function AddItem() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = e => {
-    setSelectedImages(Array.from(e.target.files));
+  const handleImageChange = async e => {
+    const files = Array.from(e.target.files);
+    setSelectedImages(files);
+    setLabelOptions([]);
+    setSelectedCategory('');
+    setOtherCategory('');
+
+    const fd = new FormData();
+    files.forEach(f => fd.append('images', f));
+
+    try {
+      const res = await fetch('/predict_labels', { method: 'POST', body: fd });
+      const { predictions } = await res.json();
+      setLabelOptions(predictions);
+      setSelectedCategory(predictions[0] || '');
+    } catch (err) {
+      console.error('Predict labels error:', err);
+    }
   };
 
-  const handlePriceFocus = (field) => {
+  const handlePriceFocus = field => {
     setForm(prev => ({
       ...prev,
       [field]: prev[field].startsWith('$') ? prev[field] : '$' + prev[field]
@@ -34,12 +52,27 @@ function AddItem() {
   };
 
   const submit = () => {
-    if (!form.name || selectedImages.length === 0) return alert('Name and image are required.');
-    if (isRent && !form.rent_price) return alert('Please enter a rent price.');
-    if (isBuy && !form.buy_price) return alert('Please enter a buy price.');
+    if (!form.name || selectedImages.length === 0)
+      return alert('Name and at least one image are required.');
+    if (!selectedCategory)
+      return alert('Please select a category.');
+    if (isRent && !form.rent_price)
+      return alert('Please enter a rent price.');
+    if (isBuy && !form.buy_price)
+      return alert('Please enter a buy price.');
 
     const data = new FormData();
-    Object.entries(form).forEach(([key, value]) => data.append(key, value));
+    data.append('name', form.name);
+    data.append('description', form.description);
+    data.append('rent_price', isRent ? form.rent_price.replace(/^\$/, '') : '');
+    data.append('buy_price', isBuy ? form.buy_price.replace(/^\$/, '') : '');
+
+    const categoryToSend =
+      selectedCategory === 'other'
+        ? otherCategory.toLowerCase()
+        : selectedCategory;
+    data.append('category', categoryToSend);
+
     selectedImages.forEach(img => data.append('images', img));
 
     fetch('/add_item', {
@@ -66,6 +99,7 @@ function AddItem() {
             className="styled-input"
             placeholder="Item Name"
             name="name"
+            value={form.name}
             onChange={handleChange}
           />
 
@@ -73,74 +107,49 @@ function AddItem() {
             className="styled-input"
             placeholder="Description (size, brand, etc.)"
             name="description"
+            value={form.description}
             onChange={handleChange}
             style={{ height: '100px', resize: 'none' }}
           />
 
+          <label style={checkboxLabelStyle}>
+            <input
+              type="checkbox"
+              checked={isRent}
+              onChange={() => setIsRent(prev => !prev)}
+              style={checkboxStyle}
+            />
+            Rent
+          </label>
           {isRent && (
-            <div style={checkboxRowStyle}>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  checked={isRent}
-                  onChange={() => setIsRent(prev => !prev)}
-                  style={checkboxStyle}
-                />
-                Rent
-              </label>
-              <input
-                className="styled-input"
-                placeholder="Rent Price"
-                name="rent_price"
-                value={form.rent_price}
-                onFocus={() => handlePriceFocus('rent_price')}
-                onChange={handleChange}
-              />
-            </div>
-          )}
-          {!isRent && (
-            <label style={checkboxLabelStyle}>
-              <input
-                type="checkbox"
-                checked={isRent}
-                onChange={() => setIsRent(prev => !prev)}
-                style={checkboxStyle}
-              />
-              Rent
-            </label>
+            <input
+              className="styled-input"
+              placeholder="Rent Price"
+              name="rent_price"
+              value={form.rent_price}
+              onFocus={() => handlePriceFocus('rent_price')}
+              onChange={handleChange}
+            />
           )}
 
+          <label style={checkboxLabelStyle}>
+            <input
+              type="checkbox"
+              checked={isBuy}
+              onChange={() => setIsBuy(prev => !prev)}
+              style={checkboxStyle}
+            />
+            Buy
+          </label>
           {isBuy && (
-            <div style={checkboxRowStyle}>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  checked={isBuy}
-                  onChange={() => setIsBuy(prev => !prev)}
-                  style={checkboxStyle}
-                />
-                Buy
-              </label>
-              <input
-                className="styled-input"
-                placeholder="Buy Price"
-                name="buy_price"
-                value={form.buy_price}
-                onFocus={() => handlePriceFocus('buy_price')}
-                onChange={handleChange}
-              />
-            </div>
-          )}
-          {!isBuy && (
-            <label style={checkboxLabelStyle}>
-              <input
-                type="checkbox"
-                checked={isBuy}
-                onChange={() => setIsBuy(prev => !prev)}
-                style={checkboxStyle}
-              />
-              Buy
-            </label>
+            <input
+              className="styled-input"
+              placeholder="Buy Price"
+              name="buy_price"
+              value={form.buy_price}
+              onFocus={() => handlePriceFocus('buy_price')}
+              onChange={handleChange}
+            />
           )}
 
           <input
@@ -152,11 +161,50 @@ function AddItem() {
             style={{ padding: '6px' }}
           />
 
+          {labelOptions.length > 0 && (
+            <fieldset style={{ margin: '12px 0', textAlign: 'left' }}>
+              <legend>Category</legend>
+              {labelOptions.map(opt => (
+                <label key={opt} style={{ display: 'block', margin: '4px 0' }}>
+                  <input
+                    type="radio"
+                    name="category"
+                    value={opt}
+                    checked={selectedCategory === opt}
+                    onChange={() => setSelectedCategory(opt)}
+                    style={{ marginRight: '6px' }}
+                  />
+                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </label>
+              ))}
+              <label style={{ display: 'block', margin: '4px 0' }}>
+                <input
+                  type="radio"
+                  name="category"
+                  value="other"
+                  checked={selectedCategory === 'other'}
+                  onChange={() => setSelectedCategory('other')}
+                  style={{ marginRight: '6px' }}
+                />
+                Other
+              </label>
+              {selectedCategory === 'other' && (
+                <input
+                  type="text"
+                  placeholder="Enter category"
+                  value={otherCategory}
+                  onChange={e => setOtherCategory(e.target.value)}
+                  style={{ width: '100%', marginTop: '4px', padding: '6px' }}
+                />
+              )}
+            </fieldset>
+          )}
+
           <button
             onClick={submit}
             style={buttonStyle}
-            onMouseEnter={e => e.target.style.backgroundColor = '#FF1493'}
-            onMouseLeave={e => e.target.style.backgroundColor = '#FF69B4'}
+            onMouseEnter={e => (e.target.style.backgroundColor = '#FF1493')}
+            onMouseLeave={e => (e.target.style.backgroundColor = '#FF69B4')}
           >
             Submit
           </button>
@@ -188,13 +236,6 @@ const formStyle = {
   textAlign: 'center'
 };
 
-const checkboxRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
-  justifyContent: 'flex-start'
-};
-
 const checkboxLabelStyle = {
   display: 'flex',
   alignItems: 'center',
@@ -205,7 +246,7 @@ const checkboxLabelStyle = {
 };
 
 const checkboxStyle = {
-  accentColor: '#00000',
+  accentColor: '#000',
   cursor: 'pointer'
 };
 
@@ -220,5 +261,3 @@ const buttonStyle = {
   cursor: 'pointer',
   transition: 'background-color 0.3s ease'
 };
-
-export default AddItem;

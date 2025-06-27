@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session, redirect
+from flask import Flask, request, jsonify, render_template, session
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -6,30 +6,29 @@ from dotenv import load_dotenv
 from datetime import timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.cloud import storage
+from google.cloud import storage, vision
 import uuid
-from google.cloud import vision
-
-# Cloud Vision API
-vision_client = vision.ImageAnnotatorClient()
 
 # Load environment variables
 if os.getenv("RENDER") is None:
     load_dotenv()
 
 # Firebase & Firestore Init
-firebase_key_path = os.getenv("FIREBASE_KEY_PATH", "firebase-key.json")
+FIREBASE_KEY_PATH = os.getenv("FIREBASE_KEY_PATH", "firebase-key.json")
+if not os.path.exists(FIREBASE_KEY_PATH):
+    raise FileNotFoundError(f"FIREBASE_KEY_PATH missing: {FIREBASE_KEY_PATH}")
 
-if not firebase_key_path or not os.path.exists(firebase_key_path):
-    raise FileNotFoundError(f"FIREBASE_KEY_PATH is not set or file doesn't exist: {firebase_key_path}")
-
-cred = credentials.Certificate(firebase_key_path)
-firebase_admin.initialize_app(cred, {
-    'storageBucket': 'closet1821-images.appspot.com'
-})
-
+cred = credentials.Certificate(FIREBASE_KEY_PATH)
+firebase_admin.initialize_app(cred, {'storageBucket': 'closet1821-images.appspot.com'})
 firestore_db = firestore.client()
 
+# Storage & Vision clients
+BUCKET_NAME = 'closet1821-images'
+storage_client = storage.Client()
+vision_client = vision.ImageAnnotatorClient()
+
+# Valid categories (for both predict_labels & add_item)
+VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'shoes', 'accessories', 'other']
 
 # Flask Init
 app = Flask(__name__, static_folder='templates/static', template_folder='templates')
@@ -37,277 +36,232 @@ app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
 # Mail Config
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER") or "chloenicola7@gmail.com"
-mail = Mail(app)
+def _init_mail(app):
+    app.config.update(
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+        MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+        MAIL_DEFAULT_SENDER=os.getenv("MAIL_DEFAULT_SENDER") or os.getenv("MAIL_USERNAME")
+    )
+    return Mail(app)
 
-# GCS Upload Helper
+mail = _init_mail(app)
+
+# Helpers
 def upload_to_gcs(file_obj, filename, content_type):
-    bucket_name = "closet1821-images"
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
+    bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(f"items/{uuid.uuid4()}-{filename}")
     blob.upload_from_file(file_obj, content_type=content_type)
-    image_url = f"https://storage.googleapis.com/{bucket.name}/{blob.name}"
-
     return blob.public_url
 
-# GCVision API
-def get_vision_label(image_url):
-    image = vision.Image()
-    image.source.image_uri = image_url
-    response = vision_client.label_detection(image=image)
-    labels = [label.description.lower() for label in response.label_annotations]
-    return labels
 
-@app.route('/')
+def get_vision_labels(image_uri):
+    image = vision.Image()
+    image.source.image_uri = image_uri
+    response = vision_client.label_detection(image=image)
+    return [label.description.lower() for label in response.label_annotations]
+
+# Routes
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve_react(path=None):
+def serve_react(path):
     return render_template('index.html')
 
-'''
-@app.route("/test_db")
-def test_db():
-    docs = firestore_db.collection("users").stream()
-    return {"documents": [doc.id for doc in docs]}
-
-@app.route("/test_storage")
-def test_storage():
-    try:
-        from google.cloud import storage
-        storage_client = storage.Client()
-        buckets = list(storage_client.list_buckets())
-        return {"buckets": [b.name for b in buckets]}
-    except Exception as e:
-        return {"error": str(e)}, 500
-'''
-
 @app.route('/login', methods=['POST'])
-def handle_login():
-    data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
+def login():
+    data = request.get_json() or {}
+    email = data.get('email')
+    password = data.get('password')
+    if not email or not password:
+        return jsonify(error="Email and password required"), 400
 
-    user_ref = firestore_db.collection("users").document(email)
-    user_doc = user_ref.get()
-    if not user_doc.exists:
-        return jsonify({"error": "Invalid credentials"}), 401
+    doc = firestore_db.collection('users').document(email).get()
+    if not doc.exists:
+        return jsonify(error="Invalid credentials"), 401
 
-    user = user_doc.to_dict()
-    if not check_password_hash(user['password_hash'], password):
-        return jsonify({"error": "Invalid credentials"}), 401
+    user = doc.to_dict()
+    if not check_password_hash(user.get('password_hash',''), password):
+        return jsonify(error="Invalid credentials"), 401
 
     session.permanent = True
-    session["user_email"] = user['email']
-    session["user_name"] = user['name']
-    session["buyer_number"] = user.get('buyer_number', '')
-    return jsonify({"message": "Login successful"}), 200
+    session['user_email'] = user['email']
+    session['user_name'] = user['name']
+    session['buyer_number'] = user.get('buyer_number','')
+    return jsonify(message="Login successful"), 200
 
 @app.route('/register', methods=['POST'])
-def handle_register():
-    data = request.get_json()
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-    phone = data.get("phone", "")
+def register():
+    data = request.get_json() or {}
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+    if not all([name, email, password]):
+        return jsonify(error="Name, email, and password required"), 400
 
-    user_ref = firestore_db.collection("users").document(email)
+    user_ref = firestore_db.collection('users').document(email)
     if user_ref.get().exists:
-        return jsonify({"error": "Email already registered"}), 400
+        return jsonify(error="Email already registered"), 400
 
     user_ref.set({
-        "name": name,
-        "email": email,
-        "password_hash": generate_password_hash(password),
-        "buyer_number": phone
+        'name': name,
+        'email': email,
+        'password_hash': generate_password_hash(password),
+        'buyer_number': data.get('phone','')
     })
-
-    session["user_email"] = email
-    session["user_name"] = name
-    session["buyer_number"] = phone
-    return jsonify({"message": "Registration successful"}), 200
+    session['user_email'] = email
+    session['user_name'] = name
+    session['buyer_number'] = data.get('phone','')
+    return jsonify(message="Registration successful"), 200
 
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
-    return jsonify({"message": "Logged out successfully"})
+    return jsonify(message="Logged out"), 200
 
 @app.route('/me', methods=['GET'])
 def me():
     if 'user_email' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-    return jsonify({
-        "name": session.get("user_name"),
-        "email": session.get("user_email"),
-        "buyerNumber": session.get("buyer_number")
-    })
+        return jsonify(error="Unauthorized"), 401
+    return jsonify(
+        name=session['user_name'],
+        email=session['user_email'],
+        buyerNumber=session.get('buyer_number','')
+    ), 200
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
-    data = request.get_json()
-    feedback_text = data.get('feedback')
-
-    if not feedback_text:
-        return jsonify({'error': 'Feedback is required'}), 400
-
+    data = request.get_json() or {}
+    text = data.get('feedback','').strip()
+    if not text:
+        return jsonify(error="Feedback is required"), 400
     try:
-        msg = Message(subject="New Closet 1821 Feedback",
-                      recipients=[app.config['MAIL_DEFAULT_SENDER']],
-                      body=feedback_text)
+        msg = Message(
+            subject="New Closet 1821 Feedback",
+            recipients=[app.config['MAIL_DEFAULT_SENDER']],
+            body=text
+        )
         mail.send(msg)
-        return jsonify({'message': 'Feedback received'}), 200
-    except Exception:
-        return jsonify({'error': 'Failed to send feedback'}), 500
+        return jsonify(message="Feedback received"), 200
+    except Exception as e:
+        app.logger.error("Feedback send error: %s", e)
+        return jsonify(error="Failed to send feedback"), 500
+
+@app.route('/predict_labels', methods=['POST'])
+def predict_labels():
+    if 'images' not in request.files:
+        return jsonify(error="No images provided"), 400
+    img = request.files.getlist('images')[0]
+    uri = upload_to_gcs(img, img.filename, img.content_type)
+    labels = get_vision_labels(uri)
+    picks = [l for l in labels if l in VALID_CATEGORIES[:-1]]
+    top3 = picks[:3] + [c for c in VALID_CATEGORIES[:-1] if c not in picks][:max(0,3-len(picks))]
+    return jsonify(predictions=top3), 200
 
 @app.route('/add_item', methods=['POST'])
 def add_item():
-    try:
-        if 'images' not in request.files:
-            return jsonify({"error": "No images uploaded"}), 400
+    if 'images' not in request.files:
+        return jsonify(error="No images uploaded"), 400
+    # gather form data
+    name = request.form.get('name','').strip()
+    description = request.form.get('description','').strip() or 'No description provided'
+    rent_price = request.form.get('rent_price')
+    buy_price = request.form.get('buy_price')
+    category = request.form.get('category','').lower()
+    owner_email = session.get('user_email','')
+    owner_number = session.get('buyer_number','')
 
-        name = request.form.get('name')
-        description = request.form.get('description', 'No description provided')
-        rent_price = request.form.get('rent_price', None)
-        buy_price = request.form.get('buy_price', None)
-        override_category = request.form.get('category', '').lower()
-        owner_email = session.get('user_email', 'guest@gmail.com')
-        owner_number = session.get('buyer_number', '')
+    # ensure valid category
+    if category not in VALID_CATEGORIES:
+        category = 'other'
 
-        uploaded_images = request.files.getlist('images')
-        image_urls = []
-        for image in uploaded_images:
-            if image and image.filename:
-                image_url = upload_to_gcs(image, image.filename, image.content_type)
-                image_urls.append(image_url)
+    # upload images
+    files = request.files.getlist('images')
+    urls = [upload_to_gcs(f, f.filename, f.content_type) for f in files if f.filename]
+    if not urls:
+        return jsonify(error="No valid images"), 400
 
-        if not image_urls:
-            return jsonify({"error": "No valid images uploaded"}), 400
-
-        # Use override if provided, otherwise predict with Vision
-        if override_category in ['shirt', 'pants', 'dress', 'shorts', 'shoes', 'accessories']:
-            category = override_category
-        else:
-            labels = get_vision_label(image_urls[0])
-            category = next(
-                (label for label in labels if label in ['shirt', 'pants', 'dress', 'shorts', 'shoes', 'accessories']),
-                'other'
-            )
-
-        item_data = {
-            "name": name,
-            "description": description,
-            "rent_price": rent_price,
-            "buy_price": buy_price,
-            "image_path": image_urls[0],         # Thumbnail
-            "image_paths": image_urls,           # All uploaded image URLs
-            "owner_email": owner_email,
-            "owner_number": owner_number,
-            "category": category
-        }
-
-        firestore_db.collection("items").add(item_data)
-        return jsonify({"message": "Item added successfully!"})
-
-    except Exception as e:
-        print("🔥 ERROR in /add_item:", e)
-        return jsonify({"error": "Something went wrong while adding item."}), 500
-
+    item = {
+        'name': name,
+        'description': description,
+        'rent_price': rent_price,
+        'buy_price': buy_price,
+        'image_path': urls[0],
+        'image_paths': urls,
+        'owner_email': owner_email,
+        'owner_number': owner_number,
+        'category': category
+    }
+    doc_ref = firestore_db.collection('items').add(item)
+    return jsonify(id=doc_ref[1].id, message="Item added"), 201
 
 @app.route('/get_items', methods=['GET'])
 def get_items():
     category = request.args.get('category')
+    col = firestore_db.collection('items')
     if category:
-        items = firestore_db.collection("items").where("category", "==", category).stream()
-    else:
-        items = firestore_db.collection("items").stream()
-    return jsonify({
-        "items": [dict(item.to_dict(), id=item.id) for item in items]
-    })
-
+        col = col.where('category','==',category)
+    docs = col.stream()
+    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
+    return jsonify(items=items), 200
 
 @app.route('/get_user_items', methods=['GET'])
 def get_user_items():
     email = request.args.get('owner_email')
     if not email:
-        return jsonify({"error": "Missing email"}), 400
-
-    items = firestore_db.collection("items").where("owner_email", "==", email).stream()
-    return jsonify({
-        "items": [
-            dict(item.to_dict(), id=item.id)
-            for item in items
-        ]
-    })
+        return jsonify(error="Missing email"), 400
+    docs = firestore_db.collection('items').where('owner_email','==',email).stream()
+    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
+    return jsonify(items=items), 200
 
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):
-    doc_ref = firestore_db.collection("items").document(item_id)
+    doc_ref = firestore_db.collection('items').document(item_id)
     if not doc_ref.get().exists:
-        return jsonify({"error": "Item not found"}), 404
-
+        return jsonify(error="Not found"), 404
     doc_ref.delete()
-    return jsonify({"message": "Item deleted successfully!"})
+    return jsonify(message="Deleted"), 200
 
-@app.route('/edit_item/<item_id>', methods=['PUT','PATCH'])
+@app.route('/edit_item/<item_id>', methods=['PATCH', 'PUT'])
 def edit_item(item_id):
     if 'user_email' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    doc_ref = firestore_db.collection("items").document(item_id)
-    doc = doc_ref.get()
-    if not doc.exists:
-        return jsonify({"error": "Item not found"}), 404
-
-    item = doc.to_dict()
-    if item["owner_email"] != session["user_email"]:
-        return jsonify({"error": "Forbidden"}), 403
-
-    updates = request.get_json()
+        return jsonify(error="Unauthorized"), 401
+    doc_ref = firestore_db.collection('items').document(item_id)
+    if not doc_ref.get().exists:
+        return jsonify(error="Not found"), 404
+    item = doc_ref.get().to_dict()
+    if item.get('owner_email') != session['user_email']:
+        return jsonify(error="Forbidden"), 403
+    updates = request.get_json() or {}
     doc_ref.update(updates)
     updated = doc_ref.get().to_dict()
     updated['id'] = item_id
     return jsonify(updated), 200
 
-
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():
-    data = request.get_json()
-
-    # Extract details from the incoming JSON
-    buyer_name = data.get("buyer_name")
-    buyer_email = data.get("buyer_email")
-    item_name = data.get("item_name")
-    seller_email = data.get("seller_email")
-
-    # Ensure all required info is present
+    data = request.get_json() or {}
+    buyer_name = data.get('buyer_name')
+    buyer_email = data.get('buyer_email')
+    item_name = data.get('item_name')
+    seller_email = data.get('seller_email')
     if not all([buyer_name, buyer_email, item_name, seller_email]):
-        return jsonify({"error": "Missing required information"}), 400
-
+        return jsonify(error="Missing info"), 400
     try:
-        # Create and send the email
         msg = Message(
-            subject="Interest in Your Item on Closet 1821",
-            sender=app.config['MAIL_USERNAME'],
+            subject="Interest in Your Item",
             recipients=[seller_email],
             body=(
-                f"Hello,\n\n"
-                f"{buyer_name} ({buyer_email}) is interested in your item: '{item_name}'.\n\n"
-                f"You can reach out to them directly to finalize the transaction."
-                f"Once finalized, please remove your posting from the site.\n\n"
-                f"Best,\nCloset 1821"
+                f"{buyer_name} ({buyer_email}) is interested in '{item_name}'."
+                " Please contact them directly."
             )
         )
         mail.send(msg)
-        return jsonify({"message": "Notification email sent successfully!"}), 200
-
+        return jsonify(message="Seller notified"), 200
     except Exception as e:
-        print(f"Email send error: {e}")
-        return jsonify({"error": "Failed to send email"}), 500
+        app.logger.error("Notify error: %s", e)
+        return jsonify(error="Failed to notify"), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
