@@ -1,32 +1,22 @@
 import { Link } from 'react-router-dom';
 
-
 function NavBar() {
   return (
     <>
       <header style={headerStyle}>
-        <div style={headerInnerStyle}>
-          <Link to="/home" style={titleLinkStyle}>Closet 1821</Link>
-        </div>
-        <nav style={navStyle}>
+        <Link to="/home" style={{ color: '#fff', textDecoration: 'none' }}>
+          Closet 1821
+        </Link>
+      </header>
+      <nav style={navStyle}>
         <Link to="/home" style={linkStyle}>Shop</Link>
         <Link to="/add" style={linkStyle}>Add Items</Link>
         <Link to="/account" style={linkStyle}>Account</Link>
         <Link to="/feedback" style={linkStyle}>Feedback</Link>
-        <Link to="/account" style={linkStyle}>Account</Link>
       </nav>
-      </header>
     </>
   );
 }
-
-const headerInnerStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '10px',
-};
-
 
 const headerStyle = {
   backgroundColor: '#000',
@@ -60,14 +50,5 @@ const linkStyle = {
   padding: '5px 10px',
   borderRadius: '5px',
 };
-
-const titleLinkStyle = {
-  color: '#fff',
-  textDecoration: 'none',
-  fontSize: '2.5em',
-  fontWeight: 'bold'
-};
-
-
 
 export default NavBar;
