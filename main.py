@@ -58,7 +58,7 @@ def upload_to_gcs(file_obj, filename, content_type):
 def serve_react(path=None):
     return render_template('index.html')
 
-
+'''
 @app.route("/test_db")
 def test_db():
     docs = firestore_db.collection("users").stream()
@@ -73,7 +73,7 @@ def test_storage():
         return {"buckets": [b.name for b in buckets]}
     except Exception as e:
         return {"error": str(e)}, 500
-
+'''
 
 @app.route('/login', methods=['POST'])
 def handle_login():

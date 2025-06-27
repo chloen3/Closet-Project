@@ -4,7 +4,7 @@ import NavBar from '../components/NavBar';
 function Account() {
   const [user, setUser] = useState({});
   const [items, setItems] = useState([]);
-  const [hoveredCardId, setHoveredCardId] = useState(null); // 👈 for image hover tracking
+  const [hoveredCardId, setHoveredCardId] = useState(null);
 
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
@@ -46,7 +46,13 @@ function Account() {
           {items.map(item => (
             <div
               key={item.id}
-              style={cardStyle}
+              style={{
+                ...cardStyle,
+                transform: hoveredCardId === item.id ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: hoveredCardId === item.id
+                  ? '0 6px 12px rgba(0,0,0,0.15)'
+                  : '0 4px 8px rgba(0,0,0,0.1)'
+              }}
               onMouseEnter={() => setHoveredCardId(item.id)}
               onMouseLeave={() => setHoveredCardId(null)}
             >
@@ -69,7 +75,10 @@ function Account() {
                   width: '100%',
                   height: '260px',
                   objectFit: 'cover',
-                  borderRadius: '10px'
+                  borderRadius: '10px',
+                  transition: 'transform 0.4s ease, opacity 0.4s ease',
+                  transform: 'scale(1)',
+                  boxShadow: 'none'
                 }}
               />
               <h3>{item.name}</h3>
@@ -88,7 +97,6 @@ const cardStyle = {
   borderRadius: '12px',
   padding: '10px',
   background: '#fff',
-  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   textAlign: 'center',
   position: 'relative',
   width: '100%',
