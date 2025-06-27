@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import { Link } from 'react-router-dom';
 
 function NavBar() {
   return (
@@ -21,6 +20,7 @@ function NavBar() {
         <Link to="/add" style={linkStyle}>Add Items</Link>
         <Link to="/account" style={linkStyle}>Account</Link>
         <Link to="/feedback" style={linkStyle}>Feedback</Link>
+        <Link to="/account" style={linkStyle}>Account</Link>
       </nav>
     </>
   );
