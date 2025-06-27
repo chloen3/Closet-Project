@@ -70,5 +70,12 @@ const linkStyle = {
   padding: '5px 10px',
   borderRadius: '5px',
 };
+const titleLinkStyle = {
+  color: '#fff',
+  textDecoration: 'none',
+  fontSize: '2.5em',
+  fontWeight: 'bold'
+};
+
 
 export default NavBar;
