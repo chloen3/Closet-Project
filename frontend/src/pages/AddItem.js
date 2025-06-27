@@ -69,7 +69,7 @@ export default function AddItem() {
 
     const categoryToSend =
       selectedCategory === 'other'
-        ? otherCategory.toLowerCase()
+        ? otherCategory.trim().toLowerCase()
         : selectedCategory;
     data.append('category', categoryToSend);
 
@@ -161,7 +161,6 @@ export default function AddItem() {
             style={{ padding: '6px' }}
           />
 
-          {/* Dropdown for category selection */}
           {labelOptions.length > 0 && (
             <label style={dropdownLabelStyle}>
               Category:
