@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 
 function AddItem() {
   const [form, setForm] = useState({
@@ -23,10 +22,16 @@ function AddItem() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = e => {
     setSelectedImages(Array.from(e.target.files));
   };
 
+  const handlePriceFocus = (field) => {
+    setForm(prev => ({
+      ...prev,
+      [field]: prev[field].startsWith('$') ? prev[field] : '$' + prev[field]
+    }));
+  };
 
   const submit = () => {
     if (!form.name || selectedImages.length === 0) return alert('Name and image are required.');
@@ -56,26 +61,26 @@ function AddItem() {
       <main style={containerStyle}>
         <div style={formStyle}>
           <h2>Add New Item</h2>
+
           <input
-            className="syled-input"
+            className="styled-input"
             placeholder="Item Name"
             name="name"
             onChange={handleChange}
-            style={inputStyle}
           />
+
           <textarea
-            className="syled-input"
+            className="styled-input"
             placeholder="Description (size, brand, etc.)"
             name="description"
             onChange={handleChange}
-            style={{ ...inputStyle, height: '100px', resize: 'none' }}
+            style={{ height: '100px', resize: 'none' }}
           />
 
           {isRent && (
             <div style={checkboxRowStyle}>
               <label style={checkboxLabelStyle}>
                 <input
-                  className="syled-input"
                   type="checkbox"
                   checked={isRent}
                   onChange={() => setIsRent(prev => !prev)}
@@ -84,11 +89,12 @@ function AddItem() {
                 Rent
               </label>
               <input
-                className="syled-input"
+                className="styled-input"
                 placeholder="Rent Price"
                 name="rent_price"
+                value={form.rent_price}
+                onFocus={() => handlePriceFocus('rent_price')}
                 onChange={handleChange}
-                style={inputStyle}
               />
             </div>
           )}
@@ -116,10 +122,12 @@ function AddItem() {
                 Buy
               </label>
               <input
+                className="styled-input"
                 placeholder="Buy Price"
                 name="buy_price"
+                value={form.buy_price}
+                onFocus={() => handlePriceFocus('buy_price')}
                 onChange={handleChange}
-                style={inputStyle}
               />
             </div>
           )}
@@ -134,30 +142,15 @@ function AddItem() {
               Buy
             </label>
           )}
+
           <input
-            className="syled-input"
+            className="styled-input"
             type="file"
             accept="image/*"
             multiple
             onChange={handleImageChange}
-            style={{ ...inputStyle, padding: '6px' }}
+            style={{ padding: '6px' }}
           />
-
-          <select
-            name="category"
-            className="syled-input"
-            value={form.category}
-            onChange={handleChange}
-            style={inputStyle}
-            >
-            <option value="">Auto-detect category</option>
-            <option value="dress">Dress</option>
-            <option value="shirt">Shirt</option>
-            <option value="shorts">Shorts</option>
-            <option value="pants">Pants</option>
-            <option value="shoes">Shoes</option>
-            <option value="accessories">Accessories</option>
-          </select>
 
           <button
             onClick={submit}
@@ -183,27 +176,16 @@ const containerStyle = {
 };
 
 const formStyle = {
-    fontFamily: 'Arial, sans-serif',
-    width: '350px',
-    padding: '40px',
-    background: '#f9f9f9',
-    borderRadius: '16px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    textAlign: 'center'
-  };
-  
-
-const inputStyle = {
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #ccc',
-  fontSize: '1em',
-  outline: 'none',
-  transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-  boxSizing: 'border-box'
+  fontFamily: 'Arial, sans-serif',
+  width: '350px',
+  padding: '40px',
+  background: '#f9f9f9',
+  borderRadius: '16px',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  textAlign: 'center'
 };
 
 const checkboxRowStyle = {

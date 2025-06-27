@@ -22,20 +22,29 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/feedback" element={<Feedback />} />
+        <Route path="/add" element={<AddItem />} />
+
 
         {/* Protected Routes */}
+        {/*
         <Route path="/home" element={
-          <RequireAuth><Home /></RequireAuth>
+        <RequireAuth><Home /></RequireAuth>
         } />
         <Route path="/account" element={
-          <RequireAuth><Account /></RequireAuth>
+        <RequireAuth><Account /></RequireAuth>
         } />
         <Route path="/feedback" element={
-          <RequireAuth><Feedback /></RequireAuth>
+        <RequireAuth><Feedback /></RequireAuth>
         } />
         <Route path="/add" element={
-          <RequireAuth><AddItem /></RequireAuth>
+        <RequireAuth><AddItem /></RequireAuth>
         } />
+        */}
+
+        
       </Routes>
     </>
   );

@@ -220,13 +220,15 @@ def add_item():
 
 @app.route('/get_items', methods=['GET'])
 def get_items():
-    items = firestore_db.collection("items").stream()
+    category = request.args.get('category')
+    if category:
+        items = firestore_db.collection("items").where("category", "==", category).stream()
+    else:
+        items = firestore_db.collection("items").stream()
     return jsonify({
-        "items": [
-            dict(item.to_dict(), id=item.id)
-            for item in items
-        ]
+        "items": [dict(item.to_dict(), id=item.id) for item in items]
     })
+
 
 @app.route('/get_user_items', methods=['GET'])
 def get_user_items():

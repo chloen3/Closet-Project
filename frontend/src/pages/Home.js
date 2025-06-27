@@ -9,6 +9,7 @@ function Home() {
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [hoveredCardId, setHoveredCardId] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     fetch('/get_items')
@@ -17,12 +18,41 @@ function Home() {
       .catch(err => console.error('Error fetching items:', err));
   }, []);
 
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const filteredItems = selectedCategories.length === 0
+    ? items
+    : items.filter(item => selectedCategories.includes(item.category));
+
   return (
     <>
       <NavBar />
-      <main style={{ padding: '150px 20px 50px' }}>
+      <main style={{ display: 'flex', paddingTop: '150px', paddingBottom: '50px' }}>
+        {/* Sidebar */}
+        <div style={sidebarStyle}>
+          <h3>Filter by Category</h3>
+          {['all', 'dress', 'shirt', 'shorts', 'pants', 'shoes', 'accessories'].map(cat => (
+            <label key={cat} style={{ display: 'flex', alignItems: 'center', margin: '6px 0', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(cat)}
+                onChange={() => toggleCategory(cat)}
+                style={{ marginRight: '8px', accentColor: '#FF69B4' }}
+              />
+              <span style={{ textTransform: 'capitalize' }}>{cat}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* Grid */}
         <div style={gridStyle}>
-          {items.map(item => (
+          {filteredItems.map(item => (
             <div
               key={item.id}
               style={{
@@ -49,6 +79,7 @@ function Home() {
               <p>{item.description}</p>
               {item.rent_price && <p>Rent: ${item.rent_price}</p>}
               {item.buy_price && <p>Buy: ${item.buy_price}</p>}
+              <p style={{ fontSize: '0.9em', color: '#999' }}>{item.category}</p>
             </div>
           ))}
         </div>
@@ -92,62 +123,61 @@ function Home() {
             {selectedItem.buy_price && <p>Buy: ${selectedItem.buy_price}</p>}
 
             <button
-                onClick={async () => {
-                    const confirmNotify = window.confirm(`Are you sure you want to notify the seller about "${selectedItem.name}"?`);
-                    if (!confirmNotify) return;
-                    
-                    const res = await fetch('/me', { credentials: 'include' });
-                    const user = await res.json();
+              onClick={async () => {
+                const confirmNotify = window.confirm(`Are you sure you want to notify the seller about "${selectedItem.name}"?`);
+                if (!confirmNotify) return;
 
-                    if (!user.email || !user.name) {
-                    alert('Please log in to contact the seller.');
-                    return;
-                    }
+                const res = await fetch('/me', { credentials: 'include' });
+                const user = await res.json();
 
-                    const response = await fetch('/notify_seller', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        buyer_name: user.name,
-                        buyer_email: user.email,
-                        item_name: selectedItem.name,
-                        seller_email: selectedItem.owner_email
-                    })
-                    });
+                if (!user.email || !user.name) {
+                  alert('Please log in to contact the seller.');
+                  return;
+                }
 
-                    const data = await response.json();
-                    if (response.ok) {
-                    alert('Seller has been notified!');
-                    setSelectedItem(null);
-                    } else {
-                    alert(data.error || 'Failed to notify seller.');
-                    }
-                }}
-                style={{
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    border: '2px solid black',
-                    backgroundColor: '#fff',
-                    color: '#000',
-                    fontWeight: 'bold',
-                    fontSize: '1em',
-                    cursor: 'pointer',
-                    marginTop: '15px',
-                    transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => {
-                    e.target.style.backgroundColor = '#000';
-                    e.target.style.color = '#fff';
-                }}
-                onMouseLeave={e => {
-                    e.target.style.backgroundColor = '#fff';
-                    e.target.style.color = '#000';
-                }}
-                >
-                Notify Seller
+                const response = await fetch('/notify_seller', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    buyer_name: user.name,
+                    buyer_email: user.email,
+                    item_name: selectedItem.name,
+                    seller_email: selectedItem.owner_email
+                  })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                  alert('Seller has been notified!');
+                  setSelectedItem(null);
+                } else {
+                  alert(data.error || 'Failed to notify seller.');
+                }
+              }}
+              style={{
+                padding: '12px 24px',
+                borderRadius: '8px',
+                border: '2px solid black',
+                backgroundColor: '#fff',
+                color: '#000',
+                fontWeight: 'bold',
+                fontSize: '1em',
+                cursor: 'pointer',
+                marginTop: '15px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={e => {
+                e.target.style.backgroundColor = '#000';
+                e.target.style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                e.target.style.backgroundColor = '#fff';
+                e.target.style.color = '#000';
+              }}
+            >
+              Notify Seller
             </button>
-
           </div>
         </div>
       )}
@@ -155,13 +185,23 @@ function Home() {
   );
 }
 
+const sidebarStyle = {
+  minWidth: '180px',
+  padding: '20px',
+  borderRight: '1px solid #eee',
+  fontSize: '1em',
+  fontWeight: '500'
+};
+
 const gridStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(4, 1fr)',
   gap: '10px',
   justifyContent: 'center',
   maxWidth: '1200px',
-  margin: '0 auto'
+  margin: '0 auto',
+  paddingLeft: '20px',
+  flex: 1
 };
 
 const cardStyle = {
