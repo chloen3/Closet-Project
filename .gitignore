@@ -1,37 +1,29 @@
-static/uploads/
+# React build files
+/frontend/build/
+/frontend/node_modules/
+/frontend/.env
 
-# Virtual environment
+# Flask Python backend
 venv/
-
-# SQLite database
-instance/
-*.sqlite3
-*.db
-
-# Python cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Migrations (if you plan to reset manually often)
-migrations/
-
-# Environment variables
-.env
-*.env
-
-# VS Code settings (optional)
-.vscode/
-
-# macOS system files
-.DS_Store
-
-# Logs
+*.py[cod]
+*.db
+*.sqlite3
+instance/
 *.log
 logs/
 
+# Firebase and secrets
 firebase-key.json
+.env
+*.env
 
+# Flask migrations (optional)
+migrations/
 
-firebase-key.json
+# Static uploads (if images are stored locally in dev)
+static/uploads/
+
+# Editor/OS junk
+.vscode/
+.DS_Store
