@@ -57,7 +57,12 @@ function Account() {
               onMouseLeave={() => setHoveredCardId(null)}
             >
               <button
-                onClick={() => deleteItem(item.id)}
+                onClick={() => {
+                    const confirmed = window.confirm(`Are you sure you want to delete "${item.name}"?`);
+                    if (confirmed) {
+                      deleteItem(item.id);
+                    }
+                  }}                  
                 style={btnStyle}
                 onMouseEnter={e => e.currentTarget.style.color = '#FF1493'}
                 onMouseLeave={e => e.currentTarget.style.color = '#FF69B4'}

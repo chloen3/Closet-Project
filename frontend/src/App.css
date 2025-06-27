@@ -64,7 +64,7 @@ body {
   .swiper-button-next,
   .swiper-button-prev {
     color: black;
-    background-color: white;
+    background-color: black;
     width: 40px;
     height: 40px;
     border-radius: 50%;

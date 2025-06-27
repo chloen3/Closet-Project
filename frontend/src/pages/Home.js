@@ -93,6 +93,9 @@ function Home() {
 
             <button
                 onClick={async () => {
+                    const confirmNotify = window.confirm(`Are you sure you want to notify the seller about "${selectedItem.name}"?`);
+                    if (!confirmNotify) return;
+                    
                     const res = await fetch('/me', { credentials: 'include' });
                     const user = await res.json();
 
