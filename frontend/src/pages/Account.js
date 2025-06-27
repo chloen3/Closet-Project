@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 
-function Account() {
+export default function Account() {
   const [user, setUser] = useState({});
   const [items, setItems] = useState([]);
   const [hoveredCardId, setHoveredCardId] = useState(null);
 
-  // NEW: which item is in “edit mode” and its form fields
-  const [editingItem, setEditingItem] = useState(null);
+  // Track which item we're editing, plus its form data
+  const [editingItemId, setEditingItemId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -15,65 +15,61 @@ function Account() {
     buy_price: ''
   });
 
+  // Load user + their items
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        setUser(data);
-        return fetch(`/get_user_items?owner_email=${encodeURIComponent(data.email)}`);
+      .then(r => r.json())
+      .then(u => {
+        setUser(u);
+        return fetch(`/get_user_items?owner_email=${encodeURIComponent(u.email)}`);
       })
-      .then(res => res.json())
+      .then(r => r.json())
       .then(data => setItems(data.items))
-      .catch(err => console.error('Error:', err));
+      .catch(console.error);
   }, []);
 
-  const deleteItem = id => {
+  const deleteItem = id =>
     fetch(`/delete_item/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     })
-      .then(() =>
-        setItems(prev => prev.filter(i => i.id !== id))
-      )
-      .catch(err => console.error('Error deleting item:', err));
-  };
+      .then(() => setItems(prev => prev.filter(i => i.id !== id)))
+      .catch(console.error);
 
-  // NEW: start editing, prefill form
-  const handleEditClick = item => {
-    setEditingItem(item);
+  // Start editing: set the ID and pre-fill the form
+  const startEdit = item => {
+    setEditingItemId(item.id);
     setFormData({
       name: item.name,
       description: item.description,
-      rent_price: item.rent_price ?? '',
-      buy_price: item.buy_price ?? ''
+      rent_price: item.rent_price || '',
+      buy_price: item.buy_price || ''
     });
   };
 
-  // NEW: update form fields
+  // Update form fields
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(fd => ({ ...fd, [name]: value }));
   };
 
-  // NEW: submit updated item
-  const handleUpdate = id => {
-    fetch(`/edit_item/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Update failed');
-        return res.json();
-      })
-      .then(updatedItem => {
-        setItems(prev =>
-          prev.map(i => (i.id === id ? updatedItem : i))
-        );
-        setEditingItem(null);
-      })
-      .catch(err => console.error('Error updating item:', err));
+  // Save edits
+  const saveEdit = async id => {
+    try {
+      const res = await fetch(`/edit_item/${id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!res.ok) throw new Error('Update failed');
+      const updated = await res.json();
+      setItems(prev => prev.map(i => (i.id === id ? updated : i)));
+      setEditingItemId(null);
+    } catch (err) {
+      console.error(err);
+      alert('Could not save changes.');
+    }
   };
 
   return (
@@ -84,18 +80,17 @@ function Account() {
           <h2>Hello, {user.name || 'Guest'}!</h2>
           <h3>Your Posted Items:</h3>
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '10px',
-            justifyContent: 'center',
-            maxWidth: '1200px',
-            margin: '0 auto'
-          }}
-        >
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '10px',
+          justifyContent: 'center',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {items.map(item => {
-            const isEditing = editingItem?.id === item.id;
+            const isEditing = editingItemId === item.id;
 
             return (
               <div
@@ -103,16 +98,14 @@ function Account() {
                 style={{
                   ...cardStyle,
                   transform: hoveredCardId === item.id ? 'scale(1.05)' : 'scale(1)',
-                  boxShadow:
-                    hoveredCardId === item.id
-                      ? '0 6px 12px rgba(0,0,0,0.15)'
-                      : '0 4px 8px rgba(0,0,0,0.1)'
+                  boxShadow: hoveredCardId === item.id
+                    ? '0 6px 12px rgba(0,0,0,0.15)'
+                    : '0 4px 8px rgba(0,0,0,0.1)'
                 }}
                 onMouseEnter={() => setHoveredCardId(item.id)}
                 onMouseLeave={() => setHoveredCardId(null)}
               >
                 {isEditing ? (
-                  // ——— EDIT FORM ———
                   <>
                     <input
                       name="name"
@@ -142,42 +135,30 @@ function Account() {
                     />
                     <div style={{ marginTop: '10px' }}>
                       <button
-                        onClick={() => handleUpdate(item.id)}
+                        onClick={() => saveEdit(item.id)}
                         style={{ marginRight: '8px' }}
                       >
                         Save
                       </button>
-                      <button onClick={() => setEditingItem(null)}>
+                      <button onClick={() => setEditingItemId(null)}>
                         Cancel
                       </button>
                     </div>
                   </>
                 ) : (
-                  // ——— NORMAL CARD ———
                   <>
+                    {/* Edit button */}
                     <button
-                      onClick={() => handleEditClick(item)}
-                      style={{
-                        position: 'absolute',
-                        top:  '10px',
-                        left: '10px',
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: '24px',
-                        cursor: 'pointer',
-                        color: '#888'
-                      }}
+                      onClick={() => startEdit(item)}
+                      style={editBtnStyle}
                     >
                       ✎
                     </button>
 
+                    {/* Delete button */}
                     <button
                       onClick={() => {
-                        if (
-                          window.confirm(
-                            `Are you sure you want to delete "${item.name}"?`
-                          )
-                        ) {
+                        if (window.confirm(`Delete "${item.name}"?`)) {
                           deleteItem(item.id);
                         }
                       }}
@@ -186,6 +167,7 @@ function Account() {
                       ✖
                     </button>
 
+                    {/* Thumbnail */}
                     <img
                       src={
                         hoveredCardId === item.id && item.image_paths?.[1]
@@ -203,6 +185,7 @@ function Account() {
                         position: 'relative'
                       }}
                     />
+
                     <h3>{item.name}</h3>
                     <p>{item.description}</p>
                     {item.rent_price && <p>Rent: ${item.rent_price}</p>}
@@ -244,4 +227,14 @@ const btnStyle = {
   zIndex: 2
 };
 
-export default Account;
+const editBtnStyle = {
+  position: 'absolute',
+  top: '10px',
+  left: '10px',
+  background: 'transparent',
+  border: 'none',
+  fontSize: '24px',
+  cursor: 'pointer',
+  color: '#888',
+  zIndex: 2
+};

@@ -30,7 +30,6 @@ function App() {
         <Route path="/add" element={<AddItem />} />
         */}
 
-
         {/* Protected Routes */}
         <Route path="/home" element={
         <RequireAuth><Home /></RequireAuth>

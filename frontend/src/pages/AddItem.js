@@ -205,7 +205,7 @@ const checkboxLabelStyle = {
 };
 
 const checkboxStyle = {
-  accentColor: '#FF69B4',
+  accentColor: '#00000',
   cursor: 'pointer'
 };
 
