@@ -65,22 +65,22 @@ function Account() {
                 ✖
               </button>
               <img
-                src={
-                  hoveredCardId === item.id && item.image_paths?.[1]
+                src={hoveredCardId === item.id && item.image_paths?.[1]
                     ? item.image_paths[1]
-                    : item.image_path
-                }
+                    : item.image_path}
                 alt={item.name}
                 style={{
-                  width: '100%',
-                  height: '260px',
-                  objectFit: 'cover',
-                  borderRadius: '10px',
-                  transition: 'transform 0.4s ease, opacity 0.4s ease',
-                  transform: 'scale(1)',
-                  boxShadow: 'none'
+                    width: '100%',
+                    height: '260px',
+                    objectFit: 'cover',
+                    borderRadius: '10px',
+                    transition: 'transform 0.4s ease, opacity 0.4s ease',
+                    transform: 'scale(1)',
+                    boxShadow: 'none',
+                    zIndex: 1,            
+                    position: 'relative' 
                 }}
-              />
+                />
               <h3>{item.name}</h3>
               <p>{item.description}</p>
               {item.rent_price && <p>Rent: ${item.rent_price}</p>}
@@ -107,15 +107,17 @@ const cardStyle = {
 };
 
 const btnStyle = {
-  position: 'absolute',
-  top: '10px',
-  right: '10px',
-  background: 'transparent',
-  border: 'none',
-  fontSize: '40px',
-  cursor: 'pointer',
-  color: '#FF69B4',
-  transition: 'color 0.2s ease'
-};
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    background: 'transparent',
+    border: 'none',
+    fontSize: '40px',
+    cursor: 'pointer',
+    color: '#FF69B4',
+    transition: 'color 0.2s ease',
+    zIndex: 2 // trying to put above image
+  };
+  
 
 export default Account;

@@ -92,52 +92,59 @@ function Home() {
             {selectedItem.buy_price && <p>Buy: ${selectedItem.buy_price}</p>}
 
             <button
-              onClick={async () => {
-                const res = await fetch('/me', { credentials: 'include' });
-                const user = await res.json();
+                onClick={async () => {
+                    const res = await fetch('/me', { credentials: 'include' });
+                    const user = await res.json();
 
-                if (!user.email || !user.name) {
-                  alert('Please log in to contact the seller.');
-                  return;
-                }
+                    if (!user.email || !user.name) {
+                    alert('Please log in to contact the seller.');
+                    return;
+                    }
 
-                const response = await fetch('/notify_seller', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  credentials: 'include',
-                  body: JSON.stringify({
-                    buyer_name: user.name,
-                    buyer_email: user.email,
-                    item_name: selectedItem.name,
-                    seller_email: selectedItem.owner_email
-                  })
-                });
+                    const response = await fetch('/notify_seller', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        buyer_name: user.name,
+                        buyer_email: user.email,
+                        item_name: selectedItem.name,
+                        seller_email: selectedItem.owner_email
+                    })
+                    });
 
-                const data = await response.json();
-                if (response.ok) {
-                  alert('Seller has been notified!');
-                  setSelectedItem(null);
-                } else {
-                  alert(data.error || 'Failed to notify seller.');
-                }
-              }}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: '#FF69B4',
-                color: '#fff',
-                fontWeight: 'bold',
-                fontSize: '1em',
-                cursor: 'pointer',
-                marginTop: '15px',
-                transition: 'background-color 0.3s ease'
-              }}
-              onMouseEnter={e => (e.target.style.backgroundColor = '#FF1493')}
-              onMouseLeave={e => (e.target.style.backgroundColor = '#FF69B4')}
-            >
-              Notify Seller
+                    const data = await response.json();
+                    if (response.ok) {
+                    alert('Seller has been notified!');
+                    setSelectedItem(null);
+                    } else {
+                    alert(data.error || 'Failed to notify seller.');
+                    }
+                }}
+                style={{
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: '2px solid black',
+                    backgroundColor: '#fff',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    fontSize: '1em',
+                    cursor: 'pointer',
+                    marginTop: '15px',
+                    transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={e => {
+                    e.target.style.backgroundColor = '#000';
+                    e.target.style.color = '#fff';
+                }}
+                onMouseLeave={e => {
+                    e.target.style.backgroundColor = '#fff';
+                    e.target.style.color = '#000';
+                }}
+                >
+                Notify Seller
             </button>
+
           </div>
         </div>
       )}
