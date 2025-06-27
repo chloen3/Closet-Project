@@ -6,11 +6,6 @@ function NavBar() {
     <>
       <header style={headerStyle}>
         <div style={headerInnerStyle}>
-          <img
-            src="/closet-logo.png"
-            alt="Closet 1821 Logo"
-            style={logoStyle}
-          />
           <Link to="/home" style={titleLinkStyle}>Closet 1821</Link>
         </div>
       </header>
@@ -25,10 +20,6 @@ function NavBar() {
     </>
   );
 }
-const logoStyle = {
-  height: '50px',
-  marginRight: '12px',
-};
 
 const headerInnerStyle = {
   display: 'flex',
@@ -69,12 +60,6 @@ const linkStyle = {
   fontWeight: 'bold',
   padding: '5px 10px',
   borderRadius: '5px',
-};
-const titleLinkStyle = {
-  color: '#fff',
-  textDecoration: 'none',
-  fontSize: '2.5em',
-  fontWeight: 'bold'
 };
 
 
