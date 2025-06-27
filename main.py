@@ -253,6 +253,27 @@ def delete_item(item_id):
     doc_ref.delete()
     return jsonify({"message": "Item deleted successfully!"})
 
+@app.route('/edit_item/<item_id>', methods=['PUT','PATCH'])
+def edit_item(item_id):
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    doc_ref = firestore_db.collection("items").document(item_id)
+    doc = doc_ref.get()
+    if not doc.exists:
+        return jsonify({"error": "Item not found"}), 404
+
+    item = doc.to_dict()
+    if item["owner_email"] != session["user_email"]:
+        return jsonify({"error": "Forbidden"}), 403
+
+    updates = request.get_json()
+    doc_ref.update(updates)
+    updated = doc_ref.get().to_dict()
+    updated['id'] = item_id
+    return jsonify(updated), 200
+
+
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():
     data = request.get_json()

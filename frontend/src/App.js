@@ -22,14 +22,16 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/*
         <Route path="/home" element={<Home />} />
         <Route path="/account" element={<Account />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/add" element={<AddItem />} />
+        */}
 
 
         {/* Protected Routes */}
-        {/*
         <Route path="/home" element={
         <RequireAuth><Home /></RequireAuth>
         } />
@@ -42,7 +44,6 @@ function App() {
         <Route path="/add" element={
         <RequireAuth><AddItem /></RequireAuth>
         } />
-        */}
 
         
       </Routes>
