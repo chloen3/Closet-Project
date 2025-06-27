@@ -8,15 +8,14 @@ function NavBar() {
         <div style={headerInnerStyle}>
           <Link to="/home" style={titleLinkStyle}>Closet 1821</Link>
         </div>
-      </header>
-
-      <nav style={navStyle}>
+        <nav style={navStyle}>
         <Link to="/home" style={linkStyle}>Shop</Link>
         <Link to="/add" style={linkStyle}>Add Items</Link>
         <Link to="/account" style={linkStyle}>Account</Link>
         <Link to="/feedback" style={linkStyle}>Feedback</Link>
         <Link to="/account" style={linkStyle}>Account</Link>
       </nav>
+      </header>
     </>
   );
 }
