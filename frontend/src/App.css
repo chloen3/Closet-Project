@@ -63,8 +63,8 @@ body {
   }
   .swiper-button-next,
   .swiper-button-prev {
-    color: white;
-    background-color: #FF69B4;
+    color: black;
+    background-color: white;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -81,7 +81,7 @@ body {
 
   .swiper-button-next:hover,
   .swiper-button-prev:hover {
-    background-color: #FF1493;
+    background-color: black;
   }
 
   .swiper-button-next::after,
