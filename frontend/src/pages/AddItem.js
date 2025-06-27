@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 function AddItem() {
   const [form, setForm] = useState({
@@ -25,6 +26,7 @@ function AddItem() {
   const handleImageChange = (e) => {
     setSelectedImages(Array.from(e.target.files));
   };
+
 
   const submit = () => {
     if (!form.name || selectedImages.length === 0) return alert('Name and image are required.');
@@ -55,12 +57,14 @@ function AddItem() {
         <div style={formStyle}>
           <h2>Add New Item</h2>
           <input
+            className="syled-input"
             placeholder="Item Name"
             name="name"
             onChange={handleChange}
             style={inputStyle}
           />
           <textarea
+            className="syled-input"
             placeholder="Description (size, brand, etc.)"
             name="description"
             onChange={handleChange}
@@ -71,6 +75,7 @@ function AddItem() {
             <div style={checkboxRowStyle}>
               <label style={checkboxLabelStyle}>
                 <input
+                  className="syled-input"
                   type="checkbox"
                   checked={isRent}
                   onChange={() => setIsRent(prev => !prev)}
@@ -79,6 +84,7 @@ function AddItem() {
                 Rent
               </label>
               <input
+                className="syled-input"
                 placeholder="Rent Price"
                 name="rent_price"
                 onChange={handleChange}
@@ -128,8 +134,18 @@ function AddItem() {
               Buy
             </label>
           )}
+          <input
+            className="syled-input"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+            style={{ ...inputStyle, padding: '6px' }}
+          />
+
           <select
             name="category"
+            className="syled-input"
             value={form.category}
             onChange={handleChange}
             style={inputStyle}
@@ -142,14 +158,6 @@ function AddItem() {
             <option value="shoes">Shoes</option>
             <option value="accessories">Accessories</option>
           </select>
-
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            style={{ ...inputStyle, padding: '6px' }}
-          />
 
           <button
             onClick={submit}

@@ -1,32 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
 function Feedback() {
   const [feedback, setFeedback] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleFocusIn = e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        e.target.style.borderColor = '#FF69B4';
-        console.log("loggedddddd");
-        e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
-      }
-    };
-    const handleFocusOut = e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        e.target.style.borderColor = '#ccc';
-        e.target.style.boxShadow = 'none';
-      }
-    };
-    document.addEventListener('focusin', handleFocusIn);
-    document.addEventListener('focusout', handleFocusOut);
-    return () => {
-      document.removeEventListener('focusin', handleFocusIn);
-      document.removeEventListener('focusout', handleFocusOut);
-    };
-  }, []);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -52,11 +30,12 @@ function Feedback() {
         <form onSubmit={handleSubmit} style={formStyle}>
           <label><strong>We'd love your feedback!</strong></label>
           <textarea
+            className="styled-input"
             value={feedback}
             onChange={e => setFeedback(e.target.value)}
-            placeholder="Tell us how we can improve the website or features you'd like to see..."
-            style={textAreaStyle}
-          />
+            placeholder="Tell us how we can improve..."
+         />
+
           <button
             type="submit"
             style={buttonStyle}
