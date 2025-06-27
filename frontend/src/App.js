@@ -10,7 +10,8 @@ import AddItem from './pages/AddItem';
 
 function App() {
   return (
-    <Router>
+    <>
+      <NavBar />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/home" element={<Home />} />
@@ -20,7 +21,7 @@ function App() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/add" element={<AddItem />} />
       </Routes>
-    </Router>
+    </>
   );
 }
 
