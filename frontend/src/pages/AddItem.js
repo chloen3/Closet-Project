@@ -7,7 +7,8 @@ function AddItem() {
     name: '',
     description: '',
     rent_price: '',
-    buy_price: ''
+    buy_price: '',
+    category: ''
   });
 
   const [isRent, setIsRent] = useState(false);
@@ -127,6 +128,20 @@ function AddItem() {
               Buy
             </label>
           )}
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            style={inputStyle}
+            >
+            <option value="">Auto-detect category</option>
+            <option value="dress">Dress</option>
+            <option value="shirt">Shirt</option>
+            <option value="shorts">Shorts</option>
+            <option value="pants">Pants</option>
+            <option value="shoes">Shoes</option>
+            <option value="accessories">Accessories</option>
+          </select>
 
           <input
             type="file"

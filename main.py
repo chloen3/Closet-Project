@@ -8,6 +8,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud import storage
 import uuid
+from google.cloud import vision
+
+# Cloud Vision API
+vision_client = vision.ImageAnnotatorClient()
 
 # Load environment variables
 if os.getenv("RENDER") is None:
@@ -52,6 +56,14 @@ def upload_to_gcs(file_obj, filename, content_type):
     image_url = f"https://storage.googleapis.com/{bucket.name}/{blob.name}"
 
     return blob.public_url
+
+# GCVision API
+def get_vision_label(image_url):
+    image = vision.Image()
+    image.source.image_uri = image_url
+    response = vision_client.label_detection(image=image)
+    labels = [label.description.lower() for label in response.label_annotations]
+    return labels
 
 @app.route('/')
 @app.route('/<path:path>')
@@ -153,7 +165,6 @@ def submit_feedback():
         return jsonify({'error': 'Failed to send feedback'}), 500
 
 @app.route('/add_item', methods=['POST'])
-@app.route('/add_item', methods=['POST'])
 def add_item():
     try:
         if 'images' not in request.files:
@@ -163,10 +174,10 @@ def add_item():
         description = request.form.get('description', 'No description provided')
         rent_price = request.form.get('rent_price', None)
         buy_price = request.form.get('buy_price', None)
+        override_category = request.form.get('category', '').lower()
         owner_email = session.get('user_email', 'guest@gmail.com')
         owner_number = session.get('buyer_number', '')
 
-        # Upload all selected images
         uploaded_images = request.files.getlist('images')
         image_urls = []
         for image in uploaded_images:
@@ -177,15 +188,26 @@ def add_item():
         if not image_urls:
             return jsonify({"error": "No valid images uploaded"}), 400
 
+        # Use override if provided, otherwise predict with Vision
+        if override_category in ['shirt', 'pants', 'dress', 'shorts', 'shoes', 'accessories']:
+            category = override_category
+        else:
+            labels = get_vision_label(image_urls[0])
+            category = next(
+                (label for label in labels if label in ['shirt', 'pants', 'dress', 'shorts', 'shoes', 'accessories']),
+                'other'
+            )
+
         item_data = {
             "name": name,
             "description": description,
             "rent_price": rent_price,
             "buy_price": buy_price,
-            "image_path": image_urls[0],         # Use first image as thumbnail
+            "image_path": image_urls[0],         # Thumbnail
             "image_paths": image_urls,           # All uploaded image URLs
             "owner_email": owner_email,
-            "owner_number": owner_number
+            "owner_number": owner_number,
+            "category": category
         }
 
         firestore_db.collection("items").add(item_data)
@@ -194,7 +216,6 @@ def add_item():
     except Exception as e:
         print("🔥 ERROR in /add_item:", e)
         return jsonify({"error": "Something went wrong while adding item."}), 500
-
 
 
 @app.route('/get_items', methods=['GET'])
