@@ -62,7 +62,8 @@ function Account() {
                     if (confirmed) {
                       deleteItem(item.id);
                     }
-                  }}                  
+                  }}
+                  
                 style={btnStyle}
                 onMouseEnter={e => e.currentTarget.style.color = '#FF1493'}
                 onMouseLeave={e => e.currentTarget.style.color = '#FF69B4'}
