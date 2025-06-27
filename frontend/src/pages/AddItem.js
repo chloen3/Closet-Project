@@ -161,43 +161,33 @@ export default function AddItem() {
             style={{ padding: '6px' }}
           />
 
+          {/* Dropdown for category selection */}
           {labelOptions.length > 0 && (
-            <fieldset style={{ margin: '12px 0', textAlign: 'left' }}>
-              <legend>Category</legend>
-              {labelOptions.map(opt => (
-                <label key={opt} style={{ display: 'block', margin: '4px 0' }}>
-                  <input
-                    type="radio"
-                    name="category"
-                    value={opt}
-                    checked={selectedCategory === opt}
-                    onChange={() => setSelectedCategory(opt)}
-                    style={{ marginRight: '6px' }}
-                  />
-                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                </label>
-              ))}
-              <label style={{ display: 'block', margin: '4px 0' }}>
-                <input
-                  type="radio"
-                  name="category"
-                  value="other"
-                  checked={selectedCategory === 'other'}
-                  onChange={() => setSelectedCategory('other')}
-                  style={{ marginRight: '6px' }}
-                />
-                Other
-              </label>
-              {selectedCategory === 'other' && (
-                <input
-                  type="text"
-                  placeholder="Enter category"
-                  value={otherCategory}
-                  onChange={e => setOtherCategory(e.target.value)}
-                  style={{ width: '100%', marginTop: '4px', padding: '6px' }}
-                />
-              )}
-            </fieldset>
+            <label style={dropdownLabelStyle}>
+              Category:
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                style={dropdownStyle}
+              >
+                {labelOptions.map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                  </option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+            </label>
+          )}
+
+          {selectedCategory === 'other' && (
+            <input
+              type="text"
+              placeholder="Enter category"
+              value={otherCategory}
+              onChange={e => setOtherCategory(e.target.value)}
+              style={{ width: '100%', padding: '6px', marginTop: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
           )}
 
           <button
@@ -214,6 +204,7 @@ export default function AddItem() {
   );
 }
 
+// Styles
 const containerStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -248,6 +239,23 @@ const checkboxLabelStyle = {
 const checkboxStyle = {
   accentColor: '#000',
   cursor: 'pointer'
+};
+
+const dropdownLabelStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  marginTop: '12px',
+  fontSize: '1em',
+  fontWeight: '500'
+};
+
+const dropdownStyle = {
+  marginTop: '4px',
+  padding: '6px',
+  width: '100%',
+  borderRadius: '4px',
+  border: '1px solid #ccc'
 };
 
 const buttonStyle = {
