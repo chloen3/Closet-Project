@@ -2,6 +2,9 @@ import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
+// All possible categories in the app
+const ALL_CATEGORIES = ['shirt','pants','dress','shorts','shoes','accessories'];
+
 export default function AddItem() {
   const [form, setForm] = useState({
     name: '',
@@ -43,6 +46,13 @@ export default function AddItem() {
       console.error('Predict labels error:', err);
     }
   };
+
+  // Build dropdown order: predicted first, then remaining categories, then 'other'
+  const dropdownOptions = [
+    ...labelOptions,
+    ...ALL_CATEGORIES.filter(c => !labelOptions.includes(c)),
+    'other'
+  ];
 
   const handlePriceFocus = field => {
     setForm(prev => ({
@@ -161,7 +171,8 @@ export default function AddItem() {
             style={{ padding: '6px' }}
           />
 
-          {labelOptions.length > 0 && (
+          {/* Dropdown for category sorted by AI likelihood */}
+          {dropdownOptions.length > 0 && (
             <label style={dropdownLabelStyle}>
               Category:
               <select
@@ -169,12 +180,11 @@ export default function AddItem() {
                 onChange={e => setSelectedCategory(e.target.value)}
                 style={dropdownStyle}
               >
-                {labelOptions.map(opt => (
+                {dropdownOptions.map(opt => (
                   <option key={opt} value={opt}>
                     {opt.charAt(0).toUpperCase() + opt.slice(1)}
                   </option>
                 ))}
-                <option value="other">Other</option>
               </select>
             </label>
           )}
@@ -185,7 +195,13 @@ export default function AddItem() {
               placeholder="Enter category"
               value={otherCategory}
               onChange={e => setOtherCategory(e.target.value)}
-              style={{ width: '100%', padding: '6px', marginTop: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+              style={{
+                width: '100%',
+                padding: '6px',
+                marginTop: '4px',
+                borderRadius: '4px',
+                border: '1px solid #ccc'
+              }}
             />
           )}
 
