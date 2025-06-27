@@ -10,6 +10,7 @@ function Feedback() {
     const handleFocusIn = e => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         e.target.style.borderColor = '#FF69B4';
+        console.log("loggedddddd");
         e.target.style.boxShadow = '0 0 0 2px rgba(255, 105, 180, 0.2)';
       }
     };
