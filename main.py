@@ -268,6 +268,7 @@ def notify_seller():
                 f"has expressed interest in your listing for “{item_name}”.\n\n"
                 f"If you'd like to proceed, please reach out directly to coordinate "
                 f"details such as payment and delivery.\n\n"
+                f"Once your item is no longer available, please remember to delete it from the site so other users know it's sold or rented.\n\n"
                 f"Thank you for using Closet 1821!\n"
                 f"Best regards,\n"
                 f"The Closet 1821 Team"
@@ -278,6 +279,7 @@ def notify_seller():
     except Exception as e:
         app.logger.error("Notify error: %s", e)
         return jsonify(error="Failed to notify"), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
