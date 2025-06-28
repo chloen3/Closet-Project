@@ -32,6 +32,26 @@ function Register() {
       alert(data.error || 'Registration failed');
     }
   };
+
+  // use hover/linkHovered so need to be defined in the JavaScript
+  const buttonStyle = {
+    padding: '12px',
+    borderRadius: '8px',
+    border: 'none',
+    backgroundColor: hovered ? '#FF1493' : '#FF69B4',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: '1em',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease'
+  };
+
+  const linkStyle = {
+    color: linkHovered ? '#FF1493' : '#FF69B4',
+    textDecoration: 'none',
+    fontWeight: 'normal'
+  };
+
   // JSX XML return
   return (
     <div style={containerStyle}>
@@ -101,22 +121,5 @@ const formStyle = {
   gap: '12px',
   textAlign: 'center'
 };
-const buttonStyle = {
-    padding: '12px',
-    borderRadius: '8px',
-    border: 'none',
-    backgroundColor: hovered ? '#FF1493' : '#FF69B4',
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: '1em',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease'
-  };
-
-  const linkStyle = {
-    color: linkHovered ? '#FF1493' : '#FF69B4',
-    textDecoration: 'none',
-    fontWeight: 'normal'
-  };
 
 export default Register;
