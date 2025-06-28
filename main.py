@@ -3,7 +3,7 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud import storage, vision
@@ -204,21 +204,38 @@ def get_items():
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
 
+from google.api_core.exceptions import InvalidArgument
+
 @app.route('/get_user_items', methods=['GET'])
 def get_user_items():
     email = request.args.get('owner_email')
     if not email:
         return jsonify(error="Missing email"), 400
 
-    docs = (
-        firestore_db
-        .collection('items')
-        .where('owner_email','==',email)
-        .order_by('created_at', direction=gcf.Query.DESCENDING)
-        .stream()
-    )
-    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
+    try:
+        docs = (
+            firestore_db.collection('items')
+            .where('owner_email','==',email)
+            .order_by('created_at', direction=gcf.Query.DESCENDING)
+            .stream()
+        )
+    except InvalidArgument:
+        # missing index? fallback to unordered
+        docs = firestore_db.collection('items').where('owner_email','==',email).stream()
+
+    items = []
+    for doc in docs:
+        d = doc.to_dict()
+        ca = d.get('created_at')
+        # now datetime is defined!
+        if isinstance(ca, datetime):
+            d['created_at'] = ca.isoformat()
+        # or simply: d.pop('created_at', None)
+        d['id'] = doc.id
+        items.append(d)
+
     return jsonify(items=items), 200
+
 
 
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
