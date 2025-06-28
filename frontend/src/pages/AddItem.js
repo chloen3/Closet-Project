@@ -193,7 +193,7 @@ export default function AddItem() {
           />
 
           {/* Dropdown for category sorted by AI likelihood */}
-          {categoryLoading ? (
+          {(categoryLoading || labelOptions.length === 0) ? (
             <label style={dropdownLabelStyle}>
               Category:
               <select
@@ -206,7 +206,8 @@ export default function AddItem() {
               </select>
             </label>
           ) : (
-            dropdownOptions.length > 0 && (
+            /* now that labelOptions is non-empty, show the real list */
++            dropdownOptions.length > 0 && (
               <label style={dropdownLabelStyle}>
                 Category:
                 <select
