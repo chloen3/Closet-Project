@@ -75,8 +75,6 @@ export default function AddItem() {
   const submit = () => {
     if (!form.name || selectedImages.length === 0)
       return alert('Name and at least one image are required.');
-    if (!selectedCategory)
-      return alert('Please select a category.');
     if (isRent && !form.rent_price)
       return alert('Please enter a rent price.');
     if (isBuy && !form.buy_price)
