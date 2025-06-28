@@ -35,23 +35,24 @@ export default function AddItem() {
   
     if (files.length) {
       setCategoryLoading(true);
-      const form = new FormData();
-      form.append('images', files[0]);
+      const formData = new FormData();
+      formData.append('images', files[0]);
       fetch('/predict_labels', {
         method: 'POST',
-        body: form,
+        body: formData,
         credentials: 'include'
       })
         .then(r => r.json())
         .then(data => {
           // use the AI’s top-3, then all the rest
-          setCategoryOptions([
-            ...data.predictions, 
-            ...VALID_CATEGORIES.filter(c => !data.predictions.includes(c))
+          setLabelOptions([
+            ...data.predictions,
+            ...ALL_CATEGORIES.filter(c => !data.predictions.includes(c))
           ]);
         })
         .catch(() => {
-          setCategoryOptions(VALID_CATEGORIES);
+          // fallback to all categories if AI fails
+          setLabelOptions(ALL_CATEGORIES);
         })
         .finally(() => setCategoryLoading(false));
     }
@@ -192,23 +193,38 @@ export default function AddItem() {
           />
 
           {/* Dropdown for category sorted by AI likelihood */}
-          {dropdownOptions.length > 0 && (
-          <label style={dropdownLabelStyle}>
-            Category:
-            <select
-              value={selectedCategory}
-              onChange={e => setSelectedCategory(e.target.value)}
-              style={dropdownStyle}
-              /* …focus handlers… */
-            >
-              {dropdownOptions.map(opt => (
-                <option key={opt} value={opt}>
-                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
+          {categoryLoading ? (
+            <label style={dropdownLabelStyle}>
+              Category:
+              <select
+                disabled
+                style={dropdownStyle}
+                onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+                onBlur={e => e.currentTarget.style.outline = 'none'}
+              >
+                <option>Loading categories…</option>
+              </select>
+            </label>
+          ) : (
+            dropdownOptions.length > 0 && (
+              <label style={dropdownLabelStyle}>
+                Category:
+                <select
+                  value={selectedCategory}
+                  onChange={e => setSelectedCategory(e.target.value)}
+                  style={dropdownStyle}
+                  onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+                  onBlur={e => e.currentTarget.style.outline = 'none'}
+                >
+                  {dropdownOptions.map(opt => (
+                    <option key={opt} value={opt}>
+                      {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )
+          )}
 
           {selectedCategory === 'other' && (
             <input
@@ -264,7 +280,6 @@ const formStyle = {
   gap: '12px',
   textAlign: 'center'
 };
-
 
 const checkboxLabelStyle = {
   display: 'flex',

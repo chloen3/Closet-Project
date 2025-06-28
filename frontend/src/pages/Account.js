@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 
-// Account is a componenet, when React sees </ Account /> in app it calls function, captures JSX XML return, and renders it into DOM nodes
+// Account is a componenet, when React sees </ Account /> in app it calls function, captures JSX "javascript XML render" return, and renders it into DOM nodes
 function Account() {
 
   // hook initialization on mount
@@ -11,6 +11,7 @@ function Account() {
   const [hoveredCardId, setHoveredCardId] = useState(null);
 
   // runs after initial render, useEffect is used for onMount logic
+  // useEffects interrupt the normal run of code, componenet lifecycle
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
       .then(res => res.json())

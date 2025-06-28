@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Feedback() {
 
-  // hook initializatoin on first mount
+  // hook initializatoin
   const [feedback, setFeedback] = useState('');
   const navigate = useNavigate();
 

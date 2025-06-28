@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 
 function Landing() {
-    
+
+// another hook
   const navigate = useNavigate();
 
+  
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>Welcome to Closet 1821</h1>

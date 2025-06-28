@@ -6,6 +6,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 // componenet function reads current state and props and renders them to the screen
+// in React.js, updates go to the Virtual DOM which then only updates the Real DOM with changes --> efficiency
 function Home() {
 
   // hook intiitalizatoin on mount
@@ -14,12 +15,14 @@ function Home() {
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  // s1: hook initiailziation - "mounting"
   useEffect(() => {
     fetch('/get_items')
       .then(res => res.json())
-      .then(data => setItems(data.items))
+      .then(data => setItems(data.items)) // s2: updating
       .catch(err => console.error('Error fetching items:', err));
   }, []);
+  // s3: unmounting - not done here
 
   const toggleCategory = (cat) => {
     setSelectedCategories(prev => {
