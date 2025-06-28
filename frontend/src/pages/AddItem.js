@@ -248,7 +248,7 @@ const formStyle = {
   fontFamily: 'Arial, sans-serif',
   width: '350px',
   padding: '40px',
-  background: '#f9f9f9',
+  backgroundColor: '#fff',
   borderRadius: '16px',
   boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
   display: 'flex',
@@ -256,6 +256,7 @@ const formStyle = {
   gap: '12px',
   textAlign: 'center'
 };
+
 
 const checkboxLabelStyle = {
   display: 'flex',
