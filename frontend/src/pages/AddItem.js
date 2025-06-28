@@ -19,6 +19,7 @@ export default function AddItem() {
   const [labelOptions, setLabelOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [otherCategory, setOtherCategory] = useState('');
+  const [categoryLoading, setCategoryLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -28,25 +29,33 @@ export default function AddItem() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = async e => {
+  const handleImageChange = e => {
     const files = Array.from(e.target.files);
     setSelectedImages(files);
-    setLabelOptions([]);
-    setSelectedCategory('');
-    setOtherCategory('');
-
-    const fd = new FormData();
-    files.forEach(f => fd.append('images', f));
-
-    try {
-      const res = await fetch('/predict_labels', { method: 'POST', body: fd });
-      const { predictions } = await res.json();
-      setLabelOptions(predictions);
-      setSelectedCategory(predictions[0] || '');
-    } catch (err) {
-      console.error('Predict labels error:', err);
+  
+    if (files.length) {
+      setCategoryLoading(true);
+      const form = new FormData();
+      form.append('images', files[0]);
+      fetch('/predict_labels', {
+        method: 'POST',
+        body: form,
+        credentials: 'include'
+      })
+        .then(r => r.json())
+        .then(data => {
+          // use the AI’s top-3, then all the rest
+          setCategoryOptions([
+            ...data.predictions, 
+            ...VALID_CATEGORIES.filter(c => !data.predictions.includes(c))
+          ]);
+        })
+        .catch(() => {
+          setCategoryOptions(VALID_CATEGORIES);
+        })
+        .finally(() => setCategoryLoading(false));
     }
-  };
+  };  
 
   // dropdown order: predicted first, then remaining categories, then 'other'
   const dropdownOptions = [
@@ -184,23 +193,22 @@ export default function AddItem() {
 
           {/* Dropdown for category sorted by AI likelihood */}
           {dropdownOptions.length > 0 && (
-            <label style={dropdownLabelStyle}>
-              Category:
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                style={dropdownStyle}
-                onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
-                onBlur={e => e.currentTarget.style.outline = 'none'}
-              >
-                {dropdownOptions.map(opt => (
-                  <option key={opt} value={opt}>
-                    {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          <label style={dropdownLabelStyle}>
+            Category:
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              style={dropdownStyle}
+              /* …focus handlers… */
+            >
+              {dropdownOptions.map(opt => (
+                <option key={opt} value={opt}>
+                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
           {selectedCategory === 'other' && (
             <input
