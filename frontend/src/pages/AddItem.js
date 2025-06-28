@@ -3,7 +3,7 @@ import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
 // All possible categories in the app
-const ALL_CATEGORIES = ['shirt','pants','dress','shorts','shoes','accessories'];
+const ALL_CATEGORIES = ['shirt','pants','dress','skirt','shorts','shoes','accessories'];
 
 export default function AddItem() {
   const [form, setForm] = useState({
