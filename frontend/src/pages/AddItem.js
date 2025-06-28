@@ -111,6 +111,8 @@ export default function AddItem() {
             name="name"
             value={form.name}
             onChange={handleChange}
+            onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+            onBlur={e => e.currentTarget.style.outline = 'none'}
           />
 
           <textarea
@@ -120,6 +122,8 @@ export default function AddItem() {
             value={form.description}
             onChange={handleChange}
             style={{ height: '100px', resize: 'none' }}
+            onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+            onBlur={e => e.currentTarget.style.outline = 'none'}
           />
 
           <label style={checkboxLabelStyle}>
@@ -139,6 +143,8 @@ export default function AddItem() {
               value={form.rent_price}
               onFocus={() => handlePriceFocus('rent_price')}
               onChange={handleChange}
+              onFocusCapture={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+              onBlur={e => e.currentTarget.style.outline = 'none'}
             />
           )}
 
@@ -159,6 +165,8 @@ export default function AddItem() {
               value={form.buy_price}
               onFocus={() => handlePriceFocus('buy_price')}
               onChange={handleChange}
+              onFocusCapture={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+              onBlur={e => e.currentTarget.style.outline = 'none'}
             />
           )}
 
@@ -169,6 +177,8 @@ export default function AddItem() {
             multiple
             onChange={handleImageChange}
             style={{ padding: '6px' }}
+            onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+            onBlur={e => e.currentTarget.style.outline = 'none'}
           />
 
           {/* Dropdown for category sorted by AI likelihood */}
@@ -179,6 +189,8 @@ export default function AddItem() {
                 value={selectedCategory}
                 onChange={e => setSelectedCategory(e.target.value)}
                 style={dropdownStyle}
+                onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+                onBlur={e => e.currentTarget.style.outline = 'none'}
               >
                 {dropdownOptions.map(opt => (
                   <option key={opt} value={opt}>
@@ -202,6 +214,8 @@ export default function AddItem() {
                 borderRadius: '4px',
                 border: '1px solid #ccc'
               }}
+              onFocus={e => e.currentTarget.style.outline = '2px solid #FF69B4'}
+              onBlur={e => e.currentTarget.style.outline = 'none'}
             />
           )}
 
