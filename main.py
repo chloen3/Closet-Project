@@ -217,15 +217,25 @@ def get_user_items():
     email = request.args.get('owner_email')
     if not email:
         return jsonify(error="Missing email"), 400
-    # query only this user’s items, ordered newest→oldest
-    docs = (
-        firestore_db
-        .collection('items')
-        .where('owner_email', '==', email)
-        .order_by('created_at', direction=gcf.Query.DESCENDING)
+
+    # fetch unordered
+    docs = firestore_db.collection('items') \
+        .where('owner_email', '==', email) \
         .stream()
-    )
-    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
+
+    items = []
+    for doc in docs:
+        d = doc.to_dict()
+        d['id'] = doc.id
+        # use Firestore's auto timestamp
+        d['_ts'] = doc.create_time.timestamp()
+        items.append(d)
+
+    # sort newest→oldest in Python
+    items.sort(key=lambda x: x['_ts'], reverse=True)
+    for d in items:
+        d.pop('_ts', None)
+
     return jsonify(items=items), 200
 
     
