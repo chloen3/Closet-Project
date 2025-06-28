@@ -8,6 +8,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud import storage, vision
 import uuid
+from google.cloud import firestore as gcf
 
 # Load environment variables
 if os.getenv("RENDER") is None:
@@ -191,7 +192,8 @@ def add_item():
         'image_paths': urls,
         'owner_email': owner_email,
         'owner_number': owner_number,
-        'category': category
+        'category': category,
+        'created_at': gcf.SERVER_TIMESTAMP   
     }
     doc_ref = firestore_db.collection('items').add(item)
     return jsonify(id=doc_ref[1].id, message="Item added"), 201
@@ -201,8 +203,9 @@ def get_items():
     category = request.args.get('category')
     col = firestore_db.collection('items')
     if category:
-        col = col.where('category','==',category)
-    docs = col.stream()
+        col = col.where('category', '==', category)
+    # order newest→oldest
+    docs = col.order_by('created_at', direction=gcf.Query.DESCENDING).stream()
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
 
@@ -211,9 +214,17 @@ def get_user_items():
     email = request.args.get('owner_email')
     if not email:
         return jsonify(error="Missing email"), 400
-    docs = firestore_db.collection('items').where('owner_email','==',email).stream()
+
+    docs = (
+        firestore_db
+        .collection('items')
+        .where('owner_email','==',email)
+        .order_by('created_at', direction=gcf.Query.DESCENDING)
+        .stream()
+    )
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
+
 
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):

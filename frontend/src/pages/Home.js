@@ -18,17 +18,28 @@ function Home() {
       .catch(err => console.error('Error fetching items:', err));
   }, []);
 
-  const toggleCategory = (category) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
+  const toggleCategory = (cat) => {
+    setSelectedCategories(prev => {
+      if (cat === 'all') {
+        // if “all” is already on, uncheck everything; otherwise turn on only “all”
+        return prev.includes('all') ? [] : ['all'];
+      }
+      // if pick any real category, remove “All” from the list
+      const withoutAll = prev.filter(c => c !== 'all');
+      // then toggle this category
+      return withoutAll.includes(cat)
+        ? withoutAll.filter(c => c !== cat)
+        : [...withoutAll, cat];
+    });
   };
 
-  const filteredItems = selectedCategories.length === 0
+  const filteredItems =
+  selectedCategories.length === 0 ||
+  selectedCategories.includes('all')
     ? items
-    : items.filter(item => selectedCategories.includes(item.category));
+    : items.filter(item =>
+        selectedCategories.includes(item.category)
+      );
 
   return (
     <>
