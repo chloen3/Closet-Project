@@ -218,23 +218,6 @@ def get_user_items():
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
 
-@app.route('/get_user_items', methods=['GET'])
-def get_user_items():
-    email = request.args.get('owner_email')
-    if not email:
-        return jsonify(error="Missing email"), 400
-
-    # add order_by here
-    docs = (
-        firestore_db
-        .collection('items')
-        .where('owner_email', '==', email)
-        .order_by('created_at', direction=gcf.Query.DESCENDING)
-        .stream()
-    )
-
-    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
-    return jsonify(items=items), 200
     
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):
