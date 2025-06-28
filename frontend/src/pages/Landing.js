@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 function Landing() {
+    
   const navigate = useNavigate();
 
   return (

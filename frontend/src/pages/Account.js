@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 
+// Account is a componenet, when React sees </ Account /> in app it calls function, captures JSX XML return, and renders it into DOM nodes
 function Account() {
+
+  // hook initialization on mount
+  // use state keeps local, mutable data in a function component
   const [user, setUser] = useState({});
   const [items, setItems] = useState([]);
   const [hoveredCardId, setHoveredCardId] = useState(null);
 
+  // runs after initial render, useEffect is used for onMount logic
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
       .then(res => res.json())
@@ -16,7 +21,8 @@ function Account() {
       .then(res => res.json())
       .then(data => setItems(data.items))
       .catch(err => console.error('Error:', err));
-  }, []);
+  }, []); // [] run only once right after componenet first mounts
+  // if passed in user.email, would run every time email changes
 
   const deleteItem = id => {
     fetch(`/delete_item/${id}`, {

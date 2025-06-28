@@ -10,7 +10,7 @@ from google.cloud import storage, vision
 import uuid
 from google.cloud import firestore as gcf
 
-# Load environment variables
+# load environment variables
 if os.getenv("RENDER") is None:
     load_dotenv()
 
@@ -50,7 +50,7 @@ def _init_mail(app):
 
 mail = _init_mail(app)
 
-# Helpers
+# helper methods
 def upload_to_gcs(file_obj, filename, content_type):
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(f"items/{uuid.uuid4()}-{filename}")
@@ -64,19 +64,21 @@ def get_vision_labels(image_uri):
     response = vision_client.label_detection(image=image)
     return [label.description.lower() for label in response.label_annotations]
 
-# Routes
+# API routes
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react(path):
     return render_template('index.html')
 
+# error 400, bad data input
+# error 401, client unauthorized
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json() or {}
     email = data.get('email')
     password = data.get('password')
     if not email or not password:
-        return jsonify(error="Email and password required"), 400
+        return jsonify(error="Email and password required"), 400 
 
     doc = firestore_db.collection('users').document(email).get()
     if not doc.exists:
@@ -86,10 +88,10 @@ def login():
     if not check_password_hash(user.get('password_hash',''), password):
         return jsonify(error="Invalid credentials"), 401
 
+    # storing data for future backend calls
     session.permanent = True
     session['user_email'] = user['email']
     session['user_name'] = user['name']
-    session['buyer_number'] = user.get('buyer_number','')
     return jsonify(message="Login successful"), 200
 
 @app.route('/register', methods=['POST'])
@@ -104,16 +106,14 @@ def register():
     user_ref = firestore_db.collection('users').document(email)
     if user_ref.get().exists:
         return jsonify(error="Email already registered"), 400
-
+    # hashing password for data security, cannot retrieve password from looking at hash
     user_ref.set({
         'name': name,
         'email': email,
         'password_hash': generate_password_hash(password),
-        'buyer_number': data.get('phone','')
     })
     session['user_email'] = email
     session['user_name'] = name
-    session['buyer_number'] = data.get('phone','')
     return jsonify(message="Registration successful"), 200
 
 @app.route('/logout', methods=['POST'])
@@ -128,9 +128,9 @@ def me():
     return jsonify(
         name=session['user_name'],
         email=session['user_email'],
-        buyerNumber=session.get('buyer_number','')
     ), 200
 
+# error 500, something went wrong on server side
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
     data = request.get_json() or {}
@@ -153,10 +153,15 @@ def submit_feedback():
 def predict_labels():
     if 'images' not in request.files:
         return jsonify(error="No images provided"), 400
+    # grab the first image
     img = request.files.getlist('images')[0]
+    # calls helper and returns public url
     uri = upload_to_gcs(img, img.filename, img.content_type)
+    # runs cloud label vision detection
     labels = get_vision_labels(uri)
+    # keep only labels in valid categories
     picks = [l for l in labels if l in VALID_CATEGORIES[:-1]]
+    # build top three list
     top3 = picks[:3] + [c for c in VALID_CATEGORIES[:-1] if c not in picks][:max(0,3-len(picks))]
     return jsonify(predictions=top3), 200
 
@@ -171,7 +176,6 @@ def add_item():
     buy_price = request.form.get('buy_price')
     category = request.form.get('category','').lower()
     owner_email = session.get('user_email','')
-    owner_number = session.get('buyer_number','')
 
     # ensure valid category
     if category not in VALID_CATEGORIES:
@@ -191,7 +195,6 @@ def add_item():
         'image_path': urls[0],
         'image_paths': urls,
         'owner_email': owner_email,
-        'owner_number': owner_number,
         'category': category,
         'created_at': gcf.SERVER_TIMESTAMP   
     }
@@ -214,7 +217,14 @@ def get_user_items():
     email = request.args.get('owner_email')
     if not email:
         return jsonify(error="Missing email"), 400
-    docs = firestore_db.collection('items').where('owner_email','==',email).stream()
+    # query only this user’s items, ordered newest→oldest
+    docs = (
+        firestore_db
+        .collection('items')
+        .where('owner_email', '==', email)
+        .order_by('created_at', direction=gcf.Query.DESCENDING)
+        .stream()
+    )
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
 
@@ -227,22 +237,6 @@ def delete_item(item_id):
     doc_ref.delete()
     return jsonify(message="Deleted"), 200
 
-@app.route('/edit_item/<item_id>', methods=['PATCH', 'PUT'])
-def edit_item(item_id):
-    if 'user_email' not in session:
-        return jsonify(error="Unauthorized"), 401
-    doc_ref = firestore_db.collection('items').document(item_id)
-    if not doc_ref.get().exists:
-        return jsonify(error="Not found"), 404
-    item = doc_ref.get().to_dict()
-    if item.get('owner_email') != session['user_email']:
-        return jsonify(error="Forbidden"), 403
-    updates = request.get_json() or {}
-    doc_ref.update(updates)
-    updated = doc_ref.get().to_dict()
-    updated['id'] = item_id
-    return jsonify(updated), 200
-
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():
     data = request.get_json() or {}
@@ -250,15 +244,23 @@ def notify_seller():
     buyer_email = data.get('buyer_email')
     item_name = data.get('item_name')
     seller_email = data.get('seller_email')
+    # retrieve seller and buyer data 
     if not all([buyer_name, buyer_email, item_name, seller_email]):
         return jsonify(error="Missing info"), 400
+
     try:
         msg = Message(
-            subject="Interest in Your Item",
+            subject=f"Interest in Your Item: {item_name}",
             recipients=[seller_email],
             body=(
-                f"{buyer_name} ({buyer_email}) is interested in '{item_name}'."
-                " Please contact them directly."
+                f"Hello {seller_name},\n\n"
+                f"We hope you're doing well. {buyer_name} ({buyer_email}) "
+                f"has expressed interest in your listing for “{item_name}”.\n\n"
+                f"If you'd like to proceed, please reach out directly to coordinate "
+                f"details such as payment and delivery.\n\n"
+                f"Thank you for using Closet 1821!\n"
+                f"Best regards,\n"
+                f"The Closet 1821 Team"
             )
         )
         mail.send(msg)

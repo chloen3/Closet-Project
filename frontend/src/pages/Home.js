@@ -5,7 +5,10 @@ import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
+// componenet function reads current state and props and renders them to the screen
 function Home() {
+
+  // hook intiitalizatoin on mount
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [hoveredCardId, setHoveredCardId] = useState(null);
@@ -24,7 +27,7 @@ function Home() {
         // if “all” is already on, uncheck everything; otherwise turn on only “all”
         return prev.includes('all') ? [] : ['all'];
       }
-      // if pick any real category, remove “All” from the list
+      // if pick any real category, remove “all” from the list
       const withoutAll = prev.filter(c => c !== 'all');
       // then toggle this category
       return withoutAll.includes(cat)

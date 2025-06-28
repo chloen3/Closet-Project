@@ -3,9 +3,12 @@ import NavBar from '../components/NavBar';
 import { useNavigate } from 'react-router-dom';
 
 function Feedback() {
+
+  // hook initializatoin on first mount
   const [feedback, setFeedback] = useState('');
   const navigate = useNavigate();
 
+  // runs on submit button click
   const handleSubmit = e => {
     e.preventDefault();
     fetch('/submit_feedback', {

@@ -48,7 +48,7 @@ export default function AddItem() {
     }
   };
 
-  // Build dropdown order: predicted first, then remaining categories, then 'other'
+  // dropdown order: predicted first, then remaining categories, then 'other'
   const dropdownOptions = [
     ...labelOptions,
     ...ALL_CATEGORIES.filter(c => !labelOptions.includes(c)),
