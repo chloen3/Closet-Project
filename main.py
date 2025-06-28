@@ -3,7 +3,7 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud import storage, vision
@@ -65,6 +65,11 @@ def get_vision_labels(image_uri):
     return [label.description.lower() for label in response.label_annotations]
 
 # Routes
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    return render_template('index.html')
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json() or {}
@@ -204,40 +209,14 @@ def get_items():
     items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
 
-from google.api_core.exceptions import InvalidArgument
-
-@@app.route('/get_user_items', methods=['GET'])
+@app.route('/get_user_items', methods=['GET'])
 def get_user_items():
     email = request.args.get('owner_email')
     if not email:
         return jsonify(error="Missing email"), 400
-
-    # Grab all docs for that owner…
-    docs = (
-        firestore_db
-          .collection('items')
-          .where('owner_email', '==', email)
-          .stream()
-    )
-
-    items = []
-    for doc in docs:
-        d = doc.to_dict()
-        d['id'] = doc.id
-        # stash the auto‐generated create_time
-        d['_created_ts'] = doc.create_time.timestamp()
-        items.append(d)
-
-    # sort client items array by that timestamp, descending
-    items.sort(key=lambda x: x['_created_ts'], reverse=True)
-
-    # drop our temp field so React only sees the real data
-    for d in items:
-        d.pop('_created_ts', None)
-
+    docs = firestore_db.collection('items').where('owner_email','==',email).stream()
+    items = [dict(doc.to_dict(), id=doc.id) for doc in docs]
     return jsonify(items=items), 200
-
-
 
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):
@@ -286,12 +265,6 @@ def notify_seller():
     except Exception as e:
         app.logger.error("Notify error: %s", e)
         return jsonify(error="Failed to notify"), 500
-    
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react(path):
-    return render_template('index.html')
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
