@@ -39,13 +39,14 @@ app.permanent_session_lifetime = timedelta(days=30)
 # Mail Config
 def _init_mail(app):
     app.config.update(
-        MAIL_SERVER='smtp.gmail.com',
-        MAIL_PORT=587,
-        MAIL_USE_TLS=True,
-        MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
-        MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-        MAIL_DEFAULT_SENDER=os.getenv("MAIL_DEFAULT_SENDER") or os.getenv("MAIL_USERNAME")
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+    MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME")
     )
+
     return Mail(app)
 
 mail = _init_mail(app)
@@ -140,7 +141,7 @@ def submit_feedback():
     try:
         msg = Message(
             subject="New Closet 1821 Feedback",
-            recipients=[app.config['MAIL_DEFAULT_SENDER']],
+            recipients=[app.config['MAIL_USERNAME']],
             body=text
         )
         mail.send(msg)
@@ -263,7 +264,7 @@ def notify_seller():
             subject=f"Interest in Your Item: {item_name}",
             recipients=[seller_email],
             body=(
-                f"Hello {seller_name},\n\n"
+                f"Hello {seller_email},\n\n"
                 f"We hope you're doing well. {buyer_name} ({buyer_email}) "
                 f"has expressed interest in your listing for “{item_name}”.\n\n"
                 f"If you'd like to proceed, please reach out directly to coordinate "
