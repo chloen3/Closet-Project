@@ -54,7 +54,7 @@ function Home() {
         {/* Sidebar */}
         <div style={sidebarStyle}>
           <h3>Filter by Category</h3>
-          {['all', 'dress', 'shirt', 'skirt', 'shorts', 'pants', 'shoes', 'accessories'].map(cat => (
+          {['all', 'dress', 'shirt', 'shorts', 'skirt', 'pants', 'shoes', 'accessories'].map(cat => (
             <label key={cat} style={{ display: 'flex', alignItems: 'center', margin: '6px 0', cursor: 'pointer' }}>
               <input
                 type="checkbox"
