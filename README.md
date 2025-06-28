@@ -1,6 +1,6 @@
 # 👚 Closet 1821
 
-Closet 1821 is a full-stack web app for renting and selling clothing. Users can sign up, post garments with multiple images, browse listings, filter by category, edit or remove their own items, and notify sellers via email—all powered by AI-assisted categorization and cloud services.
+Closet 1821 is a full-stack web app for renting and selling clothing. Users can sign up, post garments with multiple images, browse listings, filter by category, remove their own items, and notify sellers via email—all powered by AI-assisted categorization and GCP.
 
 ---
 
