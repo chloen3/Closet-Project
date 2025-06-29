@@ -33,11 +33,12 @@ VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'acce
 
 # Flask Init
 app = Flask(
-  __name__,
-  static_folder='templates',
-  static_url_path='',
-  template_folder='templates'
+    __name__,
+    static_folder='templates/static', 
+    static_url_path='/static',
+    template_folder='templates
 )
+
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
