@@ -29,7 +29,7 @@ storage_client = storage.Client()
 vision_client = vision.ImageAnnotatorClient()
 
 # Valid categories (for both predict_labels & add_item)
-VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'accessories', 'other']
+VALID_CATEGORIES = ['shirts', 'pants', 'dresses', 'shorts', 'skirts', 'shoes', 'accessories', 'other']
 
 # Flask Init
 app = Flask(__name__, static_folder='templates/static', template_folder='templates')
@@ -270,7 +270,7 @@ def notify_seller():
                 f"If you'd like to proceed, please reach out directly to coordinate "
                 f"details such as payment and delivery.\n\n"
                 f"Once your item is no longer available, please remember to delete it from the site so other users know it's sold or rented.\n\n"
-                f"Thank you for using Closet 1821!\n"
+                f"Thank you for using Closet 1821!\n\n"
                 f"Best regards,\n"
                 f"The Closet 1821 Team"
             )
