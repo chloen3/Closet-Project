@@ -1,25 +1,29 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useLocation, Navigate } from 'react-router-dom'
 
-function RequireAuth({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+export default function RequireAuth({ children }) {
+  const [status, setStatus] = useState('loading') // 'loading' | 'authed' | 'denied'
+  const location = useLocation()
 
   useEffect(() => {
     fetch('/me', { credentials: 'include' })
       .then(res => {
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
+        if (res.ok) return res.json()
+        throw new Error('unauth')
       })
-      .catch(() => setIsAuthenticated(false));
-  }, []);
+      .then(() => setStatus('authed'))
+      .catch(() => setStatus('denied'))
+  }, [])
 
-  if (isAuthenticated === null) return null; // or a loading spinner
-  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (status === 'loading') {
+    return <div style={{padding: '2rem', textAlign:'center'}}>Checking authentication…</div>
+  }
 
-  return children;
+  if (status === 'denied') {
+    // send them to /login, but remember where they came from
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // status === 'authed'
+  return children
 }
-
-export default RequireAuth;
