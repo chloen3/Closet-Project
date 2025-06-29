@@ -91,7 +91,7 @@ def login():
         return jsonify(error="Invalid credentials"), 401
 
     # storing data for future backend calls
-    session.permanent = True
+    # session.permanent = True
     session['user_email'] = user['email']
     session['user_name'] = user['name']
     return jsonify(message="Login successful"), 200
@@ -121,7 +121,9 @@ def register():
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
-    return jsonify(message="Logged out"), 200
+    resp = make_response(jsonify(message="Logged out"), 200)
+    resp.delete_cookie(key=app.session_cookie_name, path='/')
+    return resp
 
 @app.route('/me', methods=['GET'])
 def me():
