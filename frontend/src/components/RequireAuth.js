@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useLocation, Navigate } from 'react-router-dom'
+import { useLocation, Navigate, Outlet } from 'react-router-dom'
 
-export default function RequireAuth({ children }) {
+export default function RequireAuth() {
   const [status, setStatus] = useState('loading') // 'loading' | 'authed' | 'denied'
   const location = useLocation()
 
@@ -20,10 +20,10 @@ export default function RequireAuth({ children }) {
   }
 
   if (status === 'denied') {
-    // send them to /login, but remember where they came from
-    return <Navigate to="/login" state={{ from: location }} replace />
+    // send them to landing page instead of /login
+    return <Navigate to="/" replace />
   }
 
   // status === 'authed'
-  return children
+  return <Outlet />
 }

@@ -15,6 +15,18 @@ function Home() {
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const CATEGORY_OPTIONS = [
+  { value: 'all',         label: 'All' },
+  { value: 'shirt',       label: 'Shirts' },
+  { value: 'pants',       label: 'Pants' },
+  { value: 'dress',       label: 'Dresses' },
+  { value: 'shorts',      label: 'Shorts' },
+  { value: 'skirt',       label: 'Skirts' },
+  { value: 'shoes',       label: 'Shoes' },
+  { value: 'accessories', label: 'Accessories' },
+  { value: 'other',       label: 'Other' },
+];
+
   // s1: hook initiailziation - "mounting"
   useEffect(() => {
     fetch('/get_items')
@@ -54,15 +66,23 @@ function Home() {
         {/* Sidebar */}
         <div style={sidebarStyle}>
           <h3>Filter by Category</h3>
-          {['all', 'dresses', 'shirts', 'shorts', 'skirts', 'pants', 'shoes', 'accessories'].map(cat => (
-            <label key={cat} style={{ display: 'flex', alignItems: 'center', margin: '6px 0', cursor: 'pointer' }}>
+          {CATEGORY_OPTIONS.map(({ value, label }) => (
+            <label
+              key={value}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                margin: '6px 0',
+                cursor: 'pointer'
+              }}
+            >
               <input
                 type="checkbox"
-                checked={selectedCategories.includes(cat)}
-                onChange={() => toggleCategory(cat)}
+                checked={selectedCategories.includes(value)}
+                onChange={() => toggleCategory(value)}
                 style={{ marginRight: '8px', accentColor: '#FF69B4' }}
               />
-              <span style={{ textTransform: 'capitalize' }}>{cat}</span>
+              <span>{label}</span>
             </label>
           ))}
         </div>

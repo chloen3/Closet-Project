@@ -29,7 +29,7 @@ storage_client = storage.Client()
 vision_client = vision.ImageAnnotatorClient()
 
 # Valid categories (for both predict_labels & add_item)
-VALID_CATEGORIES = ['shirts', 'pants', 'dresses', 'shorts', 'skirts', 'shoes', 'accessories', 'other']
+VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'accessories', 'other']
 
 # Flask Init
 app = Flask(
