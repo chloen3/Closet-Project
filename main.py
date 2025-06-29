@@ -31,8 +31,16 @@ vision_client = vision.ImageAnnotatorClient()
 # Valid categories (for both predict_labels & add_item)
 VALID_CATEGORIES = ['shirts', 'pants', 'dresses', 'shorts', 'skirts', 'shoes', 'accessories', 'other']
 
+STATIC_FOLDER = os.path.join(os.getcwd(), "build")      # contains index.html + static/
+TEMPLATE_FOLDER = STATIC_FOLDER 
+
 # Flask Init
-app = Flask(__name__, static_folder='templates/static', template_folder='templates')
+app = Flask(
+    __name__,
+    static_folder=STATIC_FOLDER,
+    static_url_path="/static",
+    template_folder=TEMPLATE_FOLDER 
+)
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
@@ -66,10 +74,12 @@ def get_vision_labels(image_uri):
     return [label.description.lower() for label in response.label_annotations]
 
 # API routes
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
 def serve_react(path):
-    return render_template('index.html')
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    return render_template("index.html")
 
 # error 400, bad data input
 # error 401, client unauthorized
@@ -266,13 +276,13 @@ def notify_seller():
             body=(
                 f"Hello {seller_email},\n\n"
                 f"We hope you're doing well. {buyer_name} ({buyer_email}) "
-                f"has expressed interest in your listing for “{item_name}”.\n\n"
-                f"If you'd like to proceed, please reach out directly to coordinate "
-                f"details such as payment and delivery.\n\n"
-                f"Once your item is no longer available, please remember to delete it from the site so other users know it's sold or rented.\n\n"
+                f"has expressed interest in your listing for “{item_name}”.\n"
+                f"If you'd like to proceed, please reach out to them directly to coordinate "
+                f"details such as payment and delivery.\n"
+                f"Once your item is no longer available, please remember to delete it from the site so other users know it's sold or rented.\n"
                 f"Thank you for using Closet 1821!\n\n"
                 f"Best regards,\n"
-                f"The Closet 1821 Team"
+                f"Closet 1821"
             )
         )
         mail.send(msg)
