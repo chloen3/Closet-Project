@@ -31,16 +31,8 @@ vision_client = vision.ImageAnnotatorClient()
 # Valid categories (for both predict_labels & add_item)
 VALID_CATEGORIES = ['shirts', 'pants', 'dresses', 'shorts', 'skirts', 'shoes', 'accessories', 'other']
 
-STATIC_FOLDER = os.path.join(os.getcwd(), "build")      # contains index.html + static/
-TEMPLATE_FOLDER = STATIC_FOLDER 
-
 # Flask Init
-app = Flask(
-    __name__,
-    static_folder=STATIC_FOLDER,
-    static_url_path="/static",
-    template_folder=TEMPLATE_FOLDER 
-)
+app = Flask(__name__, static_folder='templates/static', template_folder='templates')
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
@@ -74,12 +66,10 @@ def get_vision_labels(image_uri):
     return [label.description.lower() for label in response.label_annotations]
 
 # API routes
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
 def serve_react(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    return render_template("index.html")
+    return render_template('index.html')
 
 # error 400, bad data input
 # error 401, client unauthorized
