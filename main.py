@@ -36,7 +36,7 @@ app = Flask(
     __name__,
     static_folder='templates/static', 
     static_url_path='/static',
-    template_folder='templates
+    template_folder='templates'
 )
 
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
@@ -52,7 +52,6 @@ def _init_mail(app):
     MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
     MAIL_DEFAULT_SENDER=os.getenv("MAIL_USERNAME")
     )
-
     return Mail(app)
 
 mail = _init_mail(app)
@@ -288,8 +287,10 @@ def notify_seller():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react(path):
+    static_file = os.path.join(app.static_folder, path)
+    if path and os.path.exists(static_file):
+        return send_from_directory(app.static_folder, path)
     return render_template('index.html')
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
