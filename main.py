@@ -32,7 +32,12 @@ vision_client = vision.ImageAnnotatorClient()
 VALID_CATEGORIES = ['shirts', 'pants', 'dresses', 'shorts', 'skirts', 'shoes', 'accessories', 'other']
 
 # Flask Init
-app = Flask(__name__, static_folder='templates/static', template_folder='templates')
+app = Flask(
+  __name__,
+  static_folder='templates',
+  static_url_path='',
+  template_folder='templates'
+)
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
 app.permanent_session_lifetime = timedelta(days=30)
 
