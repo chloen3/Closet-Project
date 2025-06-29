@@ -66,10 +66,6 @@ def get_vision_labels(image_uri):
     return [label.description.lower() for label in response.label_annotations]
 
 # API routes
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react(path):
-    return render_template('index.html')
 
 # error 400, bad data input
 # error 401, client unauthorized
@@ -280,6 +276,11 @@ def notify_seller():
     except Exception as e:
         app.logger.error("Notify error: %s", e)
         return jsonify(error="Failed to notify"), 500
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
