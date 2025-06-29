@@ -268,7 +268,7 @@ def notify_seller():
             recipients=[seller_email],
             body=(
                 f"Hello {seller_email},\n\n"
-                f"We hope you're doing well. {buyer_name} ({buyer_email}) "
+                f"We hope you're doing well.\n {buyer_name} ({buyer_email})"
                 f"has expressed interest in your listing for “{item_name}”.\n"
                 f"If you'd like to proceed, please reach out to them directly to coordinate "
                 f"details such as payment and delivery.\n"
