@@ -1,9 +1,16 @@
+import bannerImg from '../public/banneridea1.jng';
 import { Link } from 'react-router-dom';
+
 
 function NavBar() {
   return (
     <>
       <header style={headerStyle}>
+      <img
+          src={bannerImg}
+          alt="Closet 1821 Banner"
+          style={bannerImgStyle}
+        />
         <Link to="/home" style={{ color: '#fff', textDecoration: 'none' }}>
           Closet 1821
         </Link>
@@ -19,7 +26,7 @@ function NavBar() {
 }
 
 const headerStyle = {
-  backgroundColor: '#000',
+  backgroundImage: `url(${banner1mg})`,
   color: '#fff',
   textAlign: 'center',
   fontSize: '2.5em',
@@ -29,6 +36,11 @@ const headerStyle = {
   width: '100%',
   top: 0,
   zIndex: 1000,
+};
+
+const bannerImgStyle = {
+  height: '120px',           // adjust as needed
+  marginRight: '15px',      // space between image and text
 };
 
 const navStyle = {
