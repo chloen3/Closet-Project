@@ -1,65 +1,72 @@
-import bannerImg from '../public/banneridea_1.png';
 import { Link } from 'react-router-dom';
-
 
 function NavBar() {
   return (
     <>
       <header style={headerStyle}>
-      <img
-          src={bannerImg}
+        <img
+          src={`${process.env.PUBLIC_URL}/banneridea_1.png`}
           alt="Closet 1821 Banner"
           style={bannerImgStyle}
         />
-        <Link to="/home" style={{ color: '#fff', textDecoration: 'none' }}>
+        <Link to="/home" style={titleLinkStyle}>
           Closet 1821
         </Link>
       </header>
+
       <nav style={navStyle}>
-        <Link to="/home" style={linkStyle}>Shop</Link>
-        <Link to="/add" style={linkStyle}>Add Items</Link>
-        <Link to="/feedback" style={linkStyle}>Contact Us</Link>
-        <Link to="/account" style={linkStyle}>Account</Link>'
+        <Link to="/home"    style={linkStyle}>Shop</Link>
+        <Link to="/add"     style={linkStyle}>Add Items</Link>
+        <Link to="/feedback"style={linkStyle}>Contact Us</Link>
+        <Link to="/account" style={linkStyle}>Account</Link>
       </nav>
     </>
   );
 }
 
+const headerHeight = 120; // px — must match your banner image’s height
+
 const headerStyle = {
-  backgroundImage: `url(${banner1mg})`,
-  color: '#fff',
-  textAlign: 'center',
-  fontSize: '2.5em',
-  fontWeight: 'bold',
-  padding: '20px 0',
-  position: 'fixed',
-  width: '100%',
-  top: 0,
-  zIndex: 1000,
+  display:       'flex',
+  alignItems:    'center',
+  justifyContent:'center',
+  backgroundColor:'#000',
+  position:      'fixed',
+  top:           0,
+  width:         '100%',
+  height:        `${headerHeight}px`,
+  zIndex:        1000,
 };
 
 const bannerImgStyle = {
-  height: '120px',           // adjust as needed
-  marginRight: '15px',      // space between image and text
+  height:       '100%',
+  marginRight:  '15px',
+};
+
+const titleLinkStyle = {
+  color:         '#fff',
+  textDecoration:'none',
+  fontSize:      '2.5em',
+  fontWeight:    'bold',
 };
 
 const navStyle = {
-  backgroundColor: '#000',
-  display: 'flex',
+  display:        'flex',
   justifyContent: 'center',
-  gap: '20px',
-  padding: '10px 0',
-  position: 'fixed',
-  width: '100%',
-  top: '80px',
-  zIndex: 999,
+  gap:            '20px',
+  backgroundColor:'#000',
+  position:       'fixed',
+  top:            `${headerHeight}px`,
+  width:          '100%',
+  padding:        '10px 0',
+  zIndex:         999,
 };
 
 const linkStyle = {
-  color: '#fff',
-  textDecoration: 'none',
-  fontWeight: 'bold',
-  padding: '5px 10px',
+  color:         '#fff',
+  textDecoration:'none',
+  fontWeight:   'bold',
+  padding:      '5px 10px',
   borderRadius: '5px',
 };
 
