@@ -1,4 +1,4 @@
-import bannerImg from '../public/banneridea_1.jng';
+import bannerImg from '../public/banneridea_1.png';
 import { Link } from 'react-router-dom';
 
 
