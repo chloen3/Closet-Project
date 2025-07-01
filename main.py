@@ -31,12 +31,18 @@ vision_client = vision.ImageAnnotatorClient()
 # Valid categories (for both predict_labels & add_item)
 VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'accessories', 'other']
 
-# Flask Init
+# # Flask Init
+# app = Flask(
+#     __name__,
+#     static_folder='templates/static', 
+#     static_url_path='/static',
+#     template_folder='templates'
+# )
 app = Flask(
-    __name__,
-    static_folder='templates/static', 
-    static_url_path='/static',
-    template_folder='templates'
+  __name__,
+  static_folder='build',       # serve every file under build/
+  static_url_path='',          # at the root URL
+  template_folder='build'      # index.html lives here
 )
 
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
@@ -286,11 +292,13 @@ def notify_seller():
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve_react(path):
-    static_file = os.path.join(app.static_folder, path)
-    if path and os.path.exists(static_file):
+def serve(path):
+    # if request matches a real file in build/, serve it
+    full_path = os.path.join(app.static_folder, path)
+    if path and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
-    return render_template('index.html')
+    # otherwise serve index.html
+    return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

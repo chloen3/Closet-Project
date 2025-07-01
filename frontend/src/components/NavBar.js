@@ -52,8 +52,8 @@ const navStyle = {
   backgroundColor:'#000',
   display:        'flex',
   justifyContent: 'center',
-  gap:            '30px',
-  padding:        '10px 0',
+  gap:            '35px',
+  padding:        '5px 0',
   zIndex:         999,
 };
 
