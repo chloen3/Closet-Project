@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session, make_response
+from flask import Flask, request, jsonify, render_template, session
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -31,18 +31,12 @@ vision_client = vision.ImageAnnotatorClient()
 # Valid categories (for both predict_labels & add_item)
 VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'accessories', 'other']
 
-# # Flask Init
-# app = Flask(
-#     __name__,
-#     static_folder='templates/static', 
-#     static_url_path='/static',
-#     template_folder='templates'
-# )
+# Flask Init
 app = Flask(
-  __name__,
-  static_folder='frontend/build/static',
-  static_url_path='/static',
-  template_folder='frontend/build'
+    __name__,
+    static_folder='templates/static', 
+    static_url_path='/static',
+    template_folder='templates'
 )
 
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
@@ -293,6 +287,9 @@ def notify_seller():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react(path):
+    static_file = os.path.join(app.static_folder, path)
+    if path and os.path.exists(static_file):
+        return send_from_directory(app.static_folder, path)
     return render_template('index.html')
 
 if __name__ == '__main__':

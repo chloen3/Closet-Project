@@ -13,28 +13,31 @@ RUN npm run build
 # === Stage 2: Build Flask Backend ===
 FROM python:3.11-slim
 
-# Install OS-level deps
-RUN apt-get update \
-  && apt-get install -y build-essential gcc \
-  && rm -rf /var/lib/apt/lists/*
+# Install OS-level dependencies (optional: include libmagic if needed later)
+RUN apt-get update && apt-get install -y build-essential gcc && rm -rf /var/lib/apt/lists/*
 
+# Set environment variables for Firebase/Google Cloud credentials
+ENV FIREBASE_KEY_PATH=/secrets/firebase-key/secrets
+ENV GOOGLE_APPLICATION_CREDENTIALS=/secrets/firebase-key/secrets
+
+# Set working directory
 WORKDIR /app
 
-# Install Python deps
+# Copy Python dependencies and install them
 COPY requirements.txt ./
-RUN pip install --upgrade pip \
-  && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy your Flask sources
-COPY main.py ./
-COPY firebase-key.json /secrets/firebase-key/secrets
+# Copy the entire backend source
+COPY . /app
 
-# ── Copy the React “build” into the exact place Flask will look ──
-# This will produce:
-#   /app/templates/index.html
-#   /app/templates/static/... (css/js assets)
-COPY --from=frontend /app/frontend/build /app/frontend/build
+# Copy built React frontend to Flask templates directory
+COPY --from=frontend /app/frontend/build /app/templates
 
-# Expose and run
+# Update Flask to serve static assets from React
+ENV FLASK_STATIC_FOLDER=/app/templates/static
+
+# Expose port for Cloud Run
 EXPOSE 8080
+
+# Start Flask app using Gunicorn (recommended for production)
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app"]
