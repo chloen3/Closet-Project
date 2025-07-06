@@ -245,11 +245,30 @@ def get_user_items():
     
 @app.route('/delete_item/<item_id>', methods=['DELETE'])
 def delete_item(item_id):
+    # 1. Grab the document
     doc_ref = firestore_db.collection('items').document(item_id)
-    if not doc_ref.get().exists:
-        return jsonify(error="Not found"), 404
+    doc = doc_ref.get()
+    if not doc.exists:
+        return jsonify(error="Item not found"), 404
+
+    data = doc.to_dict()
+
+    # 2. (Optional) ensure only the owner can delete
+    if session.get('user_email') != data.get('owner_email'):
+        return jsonify(error="Unauthorized"), 403
+
+    # 3. Delete associated images from GCS
+    for public_url in data.get('image_paths', []):
+        # public_url is like https://storage.googleapis.com/BUCKET_NAME/items/UUID-filename.png
+        blob_path = public_url.split(f"https://storage.googleapis.com/{BUCKET_NAME}/")[-1]
+        blob = storage_client.bucket(BUCKET_NAME).blob(blob_path)
+        blob.delete()
+
+    # 4. Delete the Firestore record
     doc_ref.delete()
-    return jsonify(message="Deleted"), 200
+
+    return jsonify(message="Item and images deleted"), 200
+
 
 @app.route('/notify_seller', methods=['POST'])
 def notify_seller():

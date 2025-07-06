@@ -1,19 +1,21 @@
 import { Link } from 'react-router-dom';
 
 function NavBar() {
+  const logoUrl = `${process.env.PUBLIC_URL}/closet-banner.png`;
+
   return (
     <>
       <header style={headerStyle}>
+        <img 
+          src={logoUrl} 
+          alt="Closet 1821 Logo" 
+          style={{ height: '40px', marginRight: '12px' }} 
+        />
         <Link to="/home" style={{ color: '#fff', textDecoration: 'none' }}>
           Closet 1821
         </Link>
       </header>
-      <nav style={navStyle}>
-        <Link to="/home" style={linkStyle}>Shop</Link>
-        <Link to="/add" style={linkStyle}>Add Items</Link>
-        <Link to="/feedback" style={linkStyle}>Contact Us</Link>
-        <Link to="/account" style={linkStyle}>Account</Link>'
-      </nav>
+      …
     </>
   );
 }
