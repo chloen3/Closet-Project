@@ -40,9 +40,9 @@ VALID_CATEGORIES = ['shirt', 'pants', 'dress', 'shorts', 'skirt', 'shoes', 'acce
 # )
 app = Flask(
   __name__,
-  static_folder='build',       # serve every file under build/
-  static_url_path='',          # at the root URL
-  template_folder='build'      # index.html lives here
+  static_folder='frontend/build/static',
+  static_url_path='/static',
+  template_folder='frontend/build'
 )
 
 app.secret_key = os.getenv("SUPER_SECRET_KEY")
@@ -292,13 +292,8 @@ def notify_seller():
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve(path):
-    # if request matches a real file in build/, serve it
-    full_path = os.path.join(app.static_folder, path)
-    if path and os.path.exists(full_path):
-        return send_from_directory(app.static_folder, path)
-    # otherwise serve index.html
-    return send_from_directory(app.static_folder, 'index.html')
+def serve_react(path):
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
