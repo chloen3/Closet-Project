@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session, make_response
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os

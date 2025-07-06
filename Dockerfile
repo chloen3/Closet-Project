@@ -33,7 +33,7 @@ COPY firebase-key.json /secrets/firebase-key/secrets
 # This will produce:
 #   /app/templates/index.html
 #   /app/templates/static/... (css/js assets)
-COPY --from=frontend /app/frontend/build /app/templates
+COPY --from=frontend /app/frontend/build /app/frontend/build
 
 # Expose and run
 EXPOSE 8080
