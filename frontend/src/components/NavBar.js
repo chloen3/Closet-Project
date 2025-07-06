@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import banner from '../assets/banneridea_1.png';
 
 const HEADER_HEIGHT = 135; // ← set this to your banner’s real height in px
 
@@ -27,7 +28,7 @@ const headerStyle = {
   left:              0,
   width:             '100%',
   height:            `${HEADER_HEIGHT}px`,
-  backgroundImage:   `url(${process.env.PUBLIC_URL}/banneridea_1.png)`,
+  backgroundImage: `url(${banner})`,
   backgroundSize:    'cover',
   backgroundPosition:'center',
   display:           'flex',
