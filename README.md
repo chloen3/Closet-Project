@@ -1,28 +1,66 @@
 # 👚 Closet 1821
 
-Closet 1821 is a full-stack web app for renting and selling clothing. Users can sign up, post garments with multiple images, browse listings, filter by category, remove their own items, and notify sellers via email—all powered by AI-assisted categorization and GCP.
+**Closet 1821** is a full-stack web app for students to rent or sell clothing on campus. Users can create accounts, upload garments with multiple images, browse and filter listings, and notify sellers—all powered by Google Cloud and AI-assisted image tagging.
 
 ---
 
-## Features
+## ✨ Features
 
-- **User Authentication**: Register & login with email + password (sessions stored server-side)  
-- **Add Items**: Upload multiple images, set rent and/or buy prices  
-  - **AI-Predicted Categories**: Vision API suggests top 3 categories (shirt, pants, dress, shorts, shoes, accessories) with manual override  
-- **Edit & Delete**: Modify or remove your own listings in the Account page  
-- **Browse & Filter**: Home page grid with category checkboxes (All, dress, shirt, shorts, pants, shoes, accessories)  
-- **Sorted by Recency**: Newest listings appear first  
-- **Detail Modal**: Click an item to open a Swiper.js image carousel and full details  
-- **Notify Seller**: Send an email directly from the item modal  
+- **🔐 User Authentication**  
+  Register and log in with email and password (session-based login)
+
+- **📸 Add Items**  
+  Upload multiple images and set rent and/or buy prices
+
+- **🧠 AI-Powered Categorization**  
+  Google Cloud Vision API suggests top 3 categories (e.g., shirt, dress, pants), with the ability to override
+
+- **🧹 Manage Listings**  
+  Edit or delete your own posts on the Account page
+
+- **🛍️ Browse & Filter**  
+  Homepage grid view with category checkboxes  
+  (`All`, `Dress`, `Shirt`, `Shorts`, `Pants`, `Shoes`, `Accessories`)
+
+- **🕒 Sorted by Recency**  
+  Newest listings appear first
+
+- **🔍 Item Detail Modal**  
+  Swiper.js carousel with full item details
+
+- **📧 Notify Seller**  
+  Email the seller directly through the item modal
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Frontend**: React 18, React Router, Swiper.js, CSS-in-JS  
-- **Backend**: Python 3.9+, Flask, Flask-Mail  
-- **AI/Storage**: Google Cloud Vision API, Firebase Admin SDK, Firestore, Cloud Storage  
-- **Containerization & Deployment**: Docker, Google Cloud Run  
+**Frontend**  
+- React 18 + TypeScript  
+- React Router v6  
+- Swiper.js for carousels  
+- CSS-in-JS styling  
 
+**Backend**  
+- Python 3.9+  
+- Flask (REST API, mail support)  
+- Flask-Mail for email notifications  
+
+**Cloud & AI**  
+- Google Cloud Vision API (image classification)  
+- Firebase Admin SDK  
+- Firestore (NoSQL DB)  
+- Google Cloud Storage (image hosting)  
+
+**Deployment**  
+- Docker (multi-stage build)  
+- Google Cloud Run (serverless deployment)  
+
+---
+
+
+🌐 [Website](https://closet1821.com)  
+
+---
 
 
